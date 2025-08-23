@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tournament Bracket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bracket {
+      display: flex;
+      align-items: flex-start;
+      overflow-x: auto;
+      padding: 1rem;
+      gap: 2rem;
+    }
+
+    .round {
+      min-width: 220px;
+    }
+
+    .match {
+      background-color: #f87171; /* red-400 */
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .round h4 {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-6">
+
+  <h1 class="text-3xl font-bold mb-6 text-center">🏸 Tournament Bracket</h1>
+
+  {% for category, data in fixtures.items %}
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-4">{{ category|title }}</h2>
+
+      <div class="bracket">
+        <!-- League Round -->
+      <!-- League Matches -->
+      <div class="round">
+        <h4>League</h4>
+        {% for league, matches in data.league.items %}
+          <div class="mb-2 text-sm font-semibold text-gray-700">League {{ league }}</div>
+          {% for match in matches %}
+            <div class="match">
+              <div class="team">{{ match.team1 }}</div>
+              <div class="team">{{ match.team2 }}</div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+
+        <!-- Knockout Rounds -->
+        {% for round, matches in data.knockouts.items %}
+          <div class="round">
+            <h4>{{ round }}</h4>
+            {% for match in matches %}
+              <div class="match">
+                {{ match.note }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <hr class="my-8">
+  {% endfor %}
+
+</body>
+</html>

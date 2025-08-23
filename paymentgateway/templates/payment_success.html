@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <title>Payment Successful | Tournament Registration</title>
+  <meta http-equiv="refresh" content="3;url=/league" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap');
+
+    body {
+      margin: 0;
+      background: #f9fafb;
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      padding: 60px 80px;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .icon-wrapper {
+      background: #4caf50;
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    }
+
+    .icon-wrapper svg {
+      width: 48px;
+      height: 48px;
+      stroke: white;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #222;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 10px;
+    }
+
+    .btn {
+      font-family: 'Roboto', sans-serif;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 14px 60px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .btn:hover {
+      background-color: #388e3c;
+    }
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+  <div class="icon-wrapper" aria-label="Success">
+    <svg viewBox="0 0 24 24">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </div>
+
+  <h1>Registration Successful</h1>
+  <p>Your registration is confirmed! You’ll be redirected to the home page shortly.</p>
+  <p class="note">Redirecting in 3 seconds...</p>
+  <button class="btn" onclick="window.location.href='/'">Go Now</button>
+</div>
+
+</body>
+</html>

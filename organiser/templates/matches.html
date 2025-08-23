@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Match Fixtures</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .match-card { word-wrap: break-word; }
+  </style>
+</head>
+<body class="p-3">
+
+<div id="fixture-app">
+  <h2 class="mb-4 text-center">🏸 Tournament Fixtures</h2>
+
+  <!-- Category Tabs -->
+  <ul class="nav nav-tabs flex-wrap gap-2 justify-content-center" id="myTab" role="tablist">
+    {% for category in grouped_matches.keys %}
+      <li class="nav-item" role="presentation">
+        <button class="nav-link {% if forloop.first %}active{% endif %}" id="tab-{{ forloop.counter }}"
+                data-bs-toggle="tab" data-bs-target="#cat-{{ forloop.counter }}" type="button" role="tab">
+          {{ category|title }}
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content mt-3" id="myTabContent">
+    {% for category, rounds in grouped_matches.items %}
+      <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="cat-{{ forloop.counter }}" role="tabpanel">
+        <h4 class="mt-3 text-center">{{ category|title }}</h4>
+
+        {% for round_name, matches in rounds.items %}
+          <h5 class="mt-4">🎮 {{ round_name|title }} — Matches: {{ matches|length }}</h5>
+          <ul class="list-group">
+            {% for match in matches %}
+              <li class="list-group-item match-card {% if match.is_started and not match.is_completed %}bg-warning-subtle{% endif %}">
+                
+                <!-- Header -->
+                <div class="fw-bold small d-flex flex-column flex-md-row justify-content-between align-items-start">
+                  <div>🎮 Game {{ match.game_number }} — {{ match.round }}</div>
+                  <span class="badge mt-2 mt-md-0 {% if match.is_completed %}bg-success{% elif match.is_started %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ match.get_status }}
+                  </span>
+                </div>
+
+                <!-- Teams -->
+                <div class="ms-2 mt-2">
+                  <div>🔹 {{ match.team1 }}</div>
+                  <div>🔻vs</div>
+                  <div>🔹 {{ match.team2 }}</div>
+                </div>
+
+                <!-- Score -->
+                {% if match.team1_score is not None and match.team2_score is not None %}
+                  <div class="mt-2 ms-2">
+                    🏆 Score: {{ match.team1_score }} - {{ match.team2_score }}
+                  </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="mt-2 d-flex flex-wrap justify-content-between align-items-center" id = {match.id}>
+                  <div class="d-flex gap-2 flex-wrap" >
+                    {% if not match.is_started %}
+                      <button class="btn btn-sm btn-outline-success" onclick="startMatch({{ match.id }})">
+                        ▶️ Start Game
+                      </button>
+                    {% endif %}
+                    {% if not match.is_completed %}
+                      <button class="btn btn-sm btn-outline-primary"
+                              onclick="openScoreModal({{ match.id }}, '{{ match.team1|escapejs }}', '{{ match.team2|escapejs }}', '{{ match.team1_score|default_if_none:"" }}', '{{ match.team2_score|default_if_none:"" }}')">
+                        ✏️ Update Score
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="scoreModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Score</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="scoreForm">
+          <input type="hidden" id="matchId">
+          <div class="mb-3 text-center">
+            <strong id="team1Name"></strong> vs <strong id="team2Name"></strong>
+          </div>
+          <div class="mb-3 d-flex justify-content-between">
+            <input type="number" id="team1Score" class="form-control me-2" placeholder="" title="Team 1 Score">
+            <input type="number" id="team2Score" class="form-control" placeholder="" title="Team 2 Score">
+          </div>
+          <button type="submit" class="btn btn-success w-100">✅ Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Functions -->
+<script>
+  function openScoreModal(id, team1, team2, score1, score2) {
+    document.getElementById('matchId').value = id;
+    document.getElementById('team1Name').textContent = team1;
+    document.getElementById('team2Name').textContent = team2;
+    document.getElementById('team1Score').value = score1;
+    document.getElementById('team2Score').value = score2;
+    document.getElementById('team1Score').placeholder = team1;
+    document.getElementById('team2Score').placeholder = team2;
+    new bootstrap.Modal(document.getElementById('scoreModal')).show();
+  }
+
+  function startMatch(matchId) {
+    fetch("{% url 'start_match' %}", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ match_id: matchId })
+    }).then(res => res.json()).then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("❌ Error: " + data.error);
+      }
+    });
+  }
+
+  document.getElementById('scoreForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    fetch("{% url 'update_score' %}", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        match_id: document.getElementById('matchId').value,
+        team1_score: document.getElementById('team1Score').value,
+        team2_score: document.getElementById('team2Score').value,
+      })
+    }).then(res => res.json()).then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("❌ Error: " + data.error);
+      }
+    });
+  });
+</script>
+
+<!-- Restore Tab on Reload -->
+<script>
+  document.querySelectorAll('#myTab button[data-bs-toggle="tab"]').forEach(function (tabButton) {
+    tabButton.addEventListener('shown.bs.tab', function (event) {
+      localStorage.setItem('activeTabId', event.target.id);
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const activeTabId = localStorage.getItem('activeTabId');
+    if (activeTabId) {
+      const triggerEl = document.getElementById(activeTabId);
+      if (triggerEl) {
+        const tab = new bootstrap.Tab(triggerEl);
+        tab.show();
+      }
+    }
+  });
+</script>
+
+<script>
+const socket = new WebSocket("ws://" + window.location.host + "/ws/score_updates/");
+
+socket.onopen = () => {
+    console.log("✅ WebSocket connected");
+};
+
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const matchId = data.match_id;
+
+    const el = document.getElementById(`${matchId}`);
+
+    if (!el) {
+        console.warn(`❌ No container found for match ID ${matchId}`);
+        return;
+    }
+
+    const score = el.querySelector('.score');
+    if (score && 'team1_score' in data && 'team2_score' in data) {
+        score.textContent = `Score: ${data.team1_score} - ${data.team2_score}`;
+    }
+
+    const winner = el.querySelector('.winner');
+    if (winner) {
+        if (data.is_complete) {
+            winner.textContent = `Winner: ${data.winner || 'Decided'}`;
+            winner.classList.remove("text-yellow-500", "text-gray-500");
+            winner.classList.add("text-green-600");
+        } else if (data.is_started) {
+            winner.textContent = "Match Started";
+            winner.classList.remove("text-green-600", "text-gray-500");
+            winner.classList.add("text-yellow-500");
+        } else {
+            winner.textContent = "Pending";
+            winner.classList.remove("text-green-600", "text-yellow-500");
+            winner.classList.add("text-gray-500");
+        }
+    }
+};
+
+socket.onerror = (error) => {
+    console.error("❌ WebSocket error:", error);
+};
+
+socket.onclose = () => {
+    console.warn("⚠️ WebSocket connection closed");
+};
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

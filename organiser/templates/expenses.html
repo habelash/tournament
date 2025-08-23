@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Badminton Tournament Fixtures</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+<link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+<style>
+  body {
+    background-color: #0d1b2a; /* Deep navy */
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .expense-container {
+    background-color: #1b263b;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    color: #f4d35e;
+    font-weight: 600;
+    font-size: 2rem;
+    border-bottom: 2px solid #f4d35e;
+    padding-bottom: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .table {
+    background-color: #ffffff;
+    color: #1b263b;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.95rem;
+  }
+
+  .table thead {
+    background-color: #f4d35e;
+    color: #000000;
+    font-weight: 600;
+    text-align: center;
+  }
+
+
+  .table tbody tr {
+    transition: background 0.3s ease;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  .btn-custom {
+    background-color: #f4d35e;
+    color: #000;
+    border: none;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-custom:hover {
+    background-color: #ffe66d;
+    color: #000;
+  }
+
+  a.receipt-link {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  a.receipt-link:hover {
+    text-decoration: underline;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+</style>
+
+<div class="expense-container mt-5">
+  <h2>📊 Expense Tracker</h2>
+
+  <table class="table table-bordered table-striped text-center">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Amount (₹)</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Receipt</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ expense.title }}</td>
+        <td>{{ expense.amount }}</td>
+        <td>{{ expense.get_category_display }}</td>
+        <td>{{ expense.date }}</td>
+        <td>
+          {% if expense.receipt %}
+            <a href="{{ expense.receipt.url }}" target="_blank" class="receipt-link">View</a>
+          {% else %}
+            <span class="text-muted">No Receipt</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center text-muted">No expenses found.</td>
+      </tr>
+      {% endfor %}
+      <div> <a style=" width: 135px; background-color: #1065b7; text-align: center; font-weight: 800; padding: 11px 0px; color: white; font-size: 12px; display: inline-block; text-decoration: none; border-radius:3.229px; " href='https://u.payu.in/pISRoo2QSHVL' > Pay Now </a> </div>
+    </tbody>
+  </table>
+</div>

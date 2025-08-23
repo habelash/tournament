@@ -1,0 +1,14 @@
+
+<h1>🗓️ Saved Match Fixtures</h1>
+
+{% for category, leagues in matches.items %}
+  <h2>📦 Category: {{ category }}</h2>
+  {% for league, league_matches in leagues.items %}
+    <h3>🎯 League {{ league }} – {{ league_matches|length }} matches</h3>
+    <ul>
+      {% for match in league_matches %}
+        <li>{{ match.team1 }} vs {{ match.team2 }}</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+{% endfor %}

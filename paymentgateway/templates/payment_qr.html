@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment | Shuttle Up Tournament</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #001f3f; /* Dark blue */
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+      background-color: #003366;
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      color: #FFD700; /* Yellow */
+    }
+
+    .qr-border {
+      border: 4px solid #FFD700;
+      border-radius: 0.5rem;
+    }
+
+    a {
+      color: #FFD700;
+    }
+
+    a:hover {
+      color: #ffc107;
+    }
+
+    .step-list li {
+      margin-bottom: 0.75rem;
+      color: #ffffff; /* Ensure all list items are white */
+    }
+
+    .label-text {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .value-text {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card p-4">
+        <div class="card-body text-center">
+          <h3 class="card-title mb-3">Pay ₹{{amount}}</h3>
+          <h5 class="text-white mb-4">Shuttle Up Badminton Tournament</h5>
+
+          <p class="mb-2">
+            <span class="label-text">Category:</span>
+            <span class="value-text">{{ registration.get_category_display }}</span>
+          </p>
+
+          {% if registration.category == 'singles' %}
+            <p class="mb-2">
+              <span class="label-text">Player:</span>
+              <span class="value-text">{{ registration.player_name }}</span>
+            </p>
+
+          {% elif registration.category == 'triplets' %}
+            <p class="mb-2">
+              <span class="label-text">Player:</span>
+              <span class="value-text">{{ registration.player_name }}</span>
+            </p>
+            <p class="mb-2">
+              <span class="label-text">Partner 1:</span>
+              <span class="value-text">{{ registration.partner_name }}</span>
+            </p>
+            <p class="mb-4">
+              <span class="label-text">Partner 2:</span>
+              <span class="value-text">{{ registration.partner2_name }}</span>
+            </p>
+
+          {% else %}
+            <p class="mb-2">
+              <span class="label-text">Player:</span>
+              <span class="value-text">{{ registration.player_name }}</span>
+            </p>
+            <p class="mb-4">
+              <span class="label-text">Partner:</span>
+              <span class="value-text">{{ registration.partner_name }}</span>
+            </p>
+          {% endif %}
+
+
+          <img 
+            src="https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=paytmqrdpnezqbsmr@paytm&pn=Shuttle%20Up%20Badminton%20Tournament&am=499&cu=INR&size=250x250" 
+            alt="UPI QR Code" 
+            class="qr-border mb-3"
+          >
+
+          <p class="text-white">Scan using GPay, PhonePe, Paytm or any UPI app</p>
+
+          <ul class="text-start step-list mt-4">
+            <li>📱 Open your UPI app (GPay, PhonePe, Paytm)</li>
+            <li>🔍 Scan the QR code above</li>
+            <li>💰 Confirm payment of ₹{{amount}}</li>
+            <p class="text-white">📸 After payment, upload your screenshot: 
+              <a href="{% url 'paymentgateway:upload_screenshot' registration.id %}" class="btn btn-outline-warning btn-sm ms-2">Upload Screenshot</a>
+            </p>
+
+          </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

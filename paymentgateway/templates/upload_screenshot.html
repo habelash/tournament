@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Screenshot</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+
+<div class="container mt-5">
+  <h2>Upload Payment Screenshot</h2>
+  <p><strong>Category:</strong> {{ registration.get_category_display }}</p>
+
+{% if registration.category == 'singles' %}
+  <p><strong>Player:</strong> {{ registration.player_name }}</p>
+
+{% elif registration.category == 'triplets' %}
+  <p><strong>Player:</strong> {{ registration.player_name }}</p>
+  <p><strong>Partner 1:</strong> {{ registration.partner_name }}</p>
+  <p><strong>Partner 2:</strong> {{ registration.partner2_name }}</p>
+
+{% else %}
+  <p><strong>Player:</strong> {{ registration.player_name }}</p>
+  <p><strong>Partner:</strong> {{ registration.partner_name }}</p>
+{% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="screenshot" class="form-label">Select Screenshot</label>
+      <input type="file" class="form-control" id="screenshot" name="screenshot" accept="image/*" required>
+    </div>
+    <button type="submit" class="btn btn-warning text-dark">Upload</button>
+  </form>
+
+  {% if registration.screenshot %}
+    <hr>
+    <h5>Uploaded Screenshot:</h5>
+    <img src="{{ registration.screenshot.url }}" class="img-fluid rounded border" style="max-width: 400px;">
+  {% endif %}
+</div>
+
+</body>
+</html>

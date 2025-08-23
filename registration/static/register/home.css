@@ -1,0 +1,78 @@
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+    }
+
+    .hero {
+      background: url('{% static "images/badminton-bg.jpg" %}') center/cover no-repeat;
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2rem;
+      border-radius: 15px;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .btn.cta-btn {
+      font-weight: bold;
+      font-size: 1.2rem;
+      background: #ffc107;
+      border: none;
+      padding: 10px 25px;
+      transition: transform 0.3s ease;
+    }
+
+    .btn.cta-btn:hover {
+      transform: scale(1.1);
+      background: #ffcd39;
+    }
+
+    .info-card, .card {
+      background: #1f2a38;
+      border: none;
+      color: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+
+    .info-card:hover, .card:hover {
+      transform: translateY(-5px);
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    ul li {
+      line-height: 2;
+    }
+
+    section {
+      animation: slideIn 1s ease-out;
+    }
+
+    footer {
+      background-color: #111;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  

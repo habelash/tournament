@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <title>Payment Failed | Tournament Registration</title>
+  <meta http-equiv="refresh" content="5;url=/" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400&display=swap');
+
+    body {
+      margin: 0;
+      background: #fff5f5;
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      padding: 60px 80px;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .icon-wrapper {
+      background: #f44336;
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+    }
+
+    .icon-wrapper svg {
+      width: 48px;
+      height: 48px;
+      stroke: white;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #c62828;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 10px;
+    }
+
+    .btn {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 14px 60px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 6px 15px rgba(244, 67, 54, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .btn:hover {
+      background-color: #c62828;
+    }
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+  <div class="icon-wrapper" aria-label="Failure">
+    <svg viewBox="0 0 24 24">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </div>
+
+  <h1>Payment Failed</h1>
+  <p>Oops! Something went wrong while processing your transaction.</p>
+  <p class="note">Redirecting to the homepage in 5 seconds...</p>
+</div>
+
+</body>
+</html>

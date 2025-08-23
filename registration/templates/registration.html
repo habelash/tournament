@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tournament Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #d0e2f5, #a9c9ff);
+      min-height: 100vh;
+      margin: 0;
+      color: #1a2935;
+    }
+
+    .navbar {
+      background-color: #0a2342;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .navbar-brand, .nav-link {
+      font-weight: 700;
+      color: #e1eaf6 !important;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-link.active {
+      color: #f7c948 !important;
+      font-weight: 700;
+      border-bottom: 2px solid #f7c948;
+      padding-bottom: 5px;
+    }
+
+    .form-container {
+      max-width: 700px;
+      margin: 100px auto 60px auto;
+      padding: 0 15px;
+    }
+
+    .form-card {
+      background-color: #ffffffdd; /* slight transparency */
+      border-radius: 24px;
+      padding: 50px 45px;
+      box-shadow: 0 12px 35px rgba(10, 35, 66, 0.12);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      border: 1px solid #e1eaf6;
+    }
+
+    .form-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 45px rgba(10, 35, 66, 0.18);
+    }
+
+    h3, h5 {
+      font-weight: 700;
+      color: #0a2342;
+      margin-bottom: 25px;
+    }
+
+    label.form-label {
+      font-weight: 600;
+      color: #2f3e4f;
+    }
+
+    input.form-control {
+      border-radius: 12px;
+      border: 1.8px solid #c4d0e5;
+      padding: 10px 14px;
+      transition: border-color 0.3s ease;
+      font-weight: 500;
+      color: #1a2935;
+    }
+
+    input.form-control:focus {
+      border-color: #f7c948;
+      box-shadow: 0 0 6px #f7c948aa;
+      outline: none;
+    }
+
+    .form-check-label {
+      font-weight: 500;
+      color: #34495e;
+      user-select: none;
+    }
+
+    .form-check-input:checked {
+      background-color: #f7c948;
+      border-color: #f7c948;
+    }
+
+    .btn-primary {
+      background-color: #f7c948;
+      border: none;
+      font-weight: 700;
+      color: #0a2342;
+      padding: 12px 0;
+      border-radius: 14px;
+      box-shadow: 0 6px 12px rgba(247, 201, 72, 0.4);
+      transition: background-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #d9ae30;
+      box-shadow: 0 8px 20px rgba(217, 174, 48, 0.6);
+      color: #fff;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #0a2342;
+      color: #e1eaf6;
+      text-align: center;
+      padding: 20px 10px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    footer a {
+      color: #f7c948;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .form-card {
+        padding: 35px 25px;
+        margin: 20px 10px;
+      }
+
+      .form-container {
+        margin-top: 50px;
+        margin-bottom: 40px;
+      }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 576px) {
+      .form-card {
+        padding: 35px 25px;
+        margin: 20px 10px;
+      }
+
+      .form-container {
+        margin-top: 50px;
+        margin-bottom: 40px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'tournament' %}">🏆 Tournament Hub</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon text-light"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'tournament' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Register</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Form Section -->
+<div class="container form-container">
+  <div class="form-card">
+    <h3 class="mb-4 text-center">Tournament Registration - {{ tournament.name }} </h3>
+  <form method="post" action="">
+  
+    {% csrf_token %}
+
+      <!-- Player Info -->
+      <div class="mb-3">
+        <label for="player_name" class="form-label">Player Name</label>
+        <input type="text" class="form-control" id="player_name" name="player_name" placeholder="Enter your full name" required>
+      </div>
+      <div class="mb-3">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="Enter your phone number" pattern="^\d{10}$" required>
+
+      </div>
+      <div class="mb-3">
+        <label for="player_email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="player_email" name="player_email" placeholder="Enter your email" required>
+      </div>
+
+      <!-- Category -->
+        <label class="form-label">Category</label>
+        {% for tc in categories %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio"
+                  name="category"
+                  id="category_{{ tc.category.id }}"
+                  value="{{ tc.category.id }}"
+                  required>
+            <label class="form-check-label" for="category_{{ tc.category.id }}">
+              {{ tc.category.name }}
+            </label>
+          </div>
+        {% empty %}
+          <p class="text-muted">No categories available for this tournament.</p>
+        {% endfor %}
+                
+      <!-- Partner Info -->
+      <div id="partner_fields" style="display: none;">
+        <div id="partner1_section">
+          <h5 class="mt-3">Partner</h5>
+          <div class="mb-3">
+            <label for="partner1_name" class="form-label">Partner Name</label>
+            <input type="text" class="form-control" id="partner1_name" name="partner1_name" placeholder="Enter partner's name">
+          </div>
+          <div class="mb-3">
+            <label for="partner1_phone" class="form-label">Partner Phone Number</label>
+            <input type="text" class="form-control" id="partner1_phone" name="partner1_phone" placeholder="Enter partner's phone number" pattern="^\d{10}$">
+          </div>
+          <div class="mb-3">
+            <label for="partner1_email" class="form-label">Partner Email</label>
+            <input type="email" class="form-control" id="partner1_email" name="partner1_email" placeholder="Enter partner's email">
+          </div>
+        </div>
+
+        <div id="partner2_section" style="display: none;">
+          <h5 class="mt-3">Partner 2</h5>
+          <div class="mb-3">
+            <label for="partner2_name" class="form-label">Partner 2 Name</label>
+            <input type="text" class="form-control" id="partner2_name" name="partner2_name" placeholder="Enter second partner's name">
+          </div>
+          <div class="mb-3">
+            <label for="partner2_phone" class="form-label">Partner 2 Phone Number</label>
+            <input type="text" class="form-control" id="partner2_phone" name="partner2_phone" placeholder="Enter second partner's phone number" pattern="^\d{10}$">
+          </div>
+          <div class="mb-3">
+            <label for="partner2_email" class="form-label">Partner 2 Email</label>
+            <input type="email" class="form-control" id="partner2_email" name="partner2_email" placeholder="Enter second partner's email">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">Proceed to Payment </button>
+          </form>
+      </div>
+        
+      </div>
+    </form>
+  </div>
+</div>
+  <!-- Footer -->
+  <footer>
+    <p>
+      &copy; {{ current_year }} Shuttle Up. All rights reserved.
+      &nbsp;|&nbsp;
+      <a href="{% url 'registration:return_policies' %}">Privacy Policy</a>
+      &nbsp;|&nbsp;
+      <a href="{% url 'registration:return_policies' %}">Terms & Conditions</a>
+    </p>
+  </footer>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Partner Logic Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const partnerFields = document.getElementById('partner_fields');
+    const partner2Section = document.getElementById('partner2_section');
+    const categoryRadios = document.querySelectorAll('input[name="category"]');
+
+    function togglePartnerFields() {
+      const selected = document.querySelector('input[name="category"]:checked')?.value;
+      if (selected === 'singles') {
+        partnerFields.style.display = 'none';
+      } else if (selected === 'triplets') {
+        partnerFields.style.display = 'block';
+        partner2Section.style.display = 'block';
+      } else {
+        partnerFields.style.display = 'block';
+        partner2Section.style.display = 'none';
+      }
+    }
+
+    togglePartnerFields();
+    categoryRadios.forEach(radio => {
+      radio.addEventListener('change', togglePartnerFields);
+    });
+  });
+</script>
+
+
+
+</body>
+</html>

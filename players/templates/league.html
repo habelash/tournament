@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>League Assignments</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h2 {
+      font-weight: 600;
+      color: #001F3F;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h4 {
+      font-weight: 500;
+      margin-top: 2rem;
+      color: #001F3F;
+    }
+
+    .league-card {
+      border: none;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+      background-color: #001F3F;
+      color: #FFD700;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .table thead {
+      background-color: #FFD700;
+      color: #001F3F;
+      font-weight: 600;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+
+    .table-striped tbody tr:hover {
+      background-color: #fffacd;
+    }
+
+    .table td, .table th {
+      vertical-align: middle;
+    }
+
+    .card-body {
+      padding: 0;
+    }
+
+    .category-header {
+      border-left: 5px solid #FFD700;
+      padding-left: 12px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'home' %}">🏆 Tournament Hub</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon text-light"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'home' %}">Register</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+  <div class="container">
+    <h2>🏸 League Assignments</h2>
+{% regroup teams by category as category_list %}
+
+{% for category in category_list %}
+  <div class="mb-5">
+    <h4 class="category-header">{{ category.list.0.team.get_category_display }}</h4>
+
+    {% regroup category.list by league as league_list %}
+
+    {% for league in league_list %}
+      <div class="card league-card mb-4">
+        <div class="card-header">
+          League {{ league.grouper }}
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped m-0">
+            <thead>
+              <tr>
+                <th class="ps-3">#</th>
+                <th>Player Name</th>
+                {% if category.grouper|lower == "triplets" %}
+                  <th>Partner Name</th>
+                  <th>Partner 2 Name</th>
+                {% elif category.grouper|lower != "singles" %}
+                  <th>Partner Name</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for assignment in league.list %}
+                <tr>
+                  <td class="ps-3">{{ forloop.counter }}</td>
+                  <td>{{ assignment.team.player_name }}</td>
+
+                  {% if category.grouper|lower == "triplets" %}
+                    <td>{{ assignment.team.partner_name }}</td>
+                    <td>{{ assignment.team.partner_2_name }}</td>
+                  {% elif category.grouper|lower != "singles" %}
+                    <td>{{ assignment.team.partner_name }}</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

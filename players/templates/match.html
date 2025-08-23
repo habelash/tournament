@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+
+{% with grouped_matches|dictsort:"0" as sorted_matches %}
+  {% with sorted_matches.0.0 as first_key %}
+    <html lang="en" x-data="{ activeTab: '{{ first_key }}' }">
+  {% endwith %}
+{% endwith %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>🏸 Fixtures | Tournament</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0A0F29;
+        }
+    </style>
+</head>
+<body class="text-white font-sans">
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-yellow-400 mb-6 text-center">🏸 Tournament Fixtures</h1>
+
+        <!-- Nav Tabs -->
+        <div class="flex flex-wrap justify-center mb-6 space-x-4">
+            {% for category in grouped_matches.keys %}
+                <button
+                    @click="activeTab = '{{ category }}'"
+                    class="px-4 py-2 rounded-full text-sm font-semibold transition 
+                           duration-200 border border-yellow-500"
+                    :class="activeTab === '{{ category }}' ? 'bg-yellow-400 text-black' : 'text-yellow-300 hover:bg-yellow-500 hover:text-black'"
+                >
+                    {{ category|title }}
+                </button>
+            {% endfor %}
+        </div>
+
+        <!-- Category Match Tables -->
+        {% for category, leagues in grouped_matches.items %}
+            <div x-show="activeTab === '{{ category }}'" x-transition>
+                {% for league, matches in leagues.items %}
+                    <div class="mb-8 bg-white bg-opacity-5 p-4 rounded-xl shadow-md">
+                        <h2 class="text-lg font-semibold text-yellow-300 mb-3">League {{ league }}</h2>
+
+                        <div class="space-y-3">
+                            {% for match in matches|dictsort:"game_number" %}
+                                <div class="p-4 bg-white bg-opacity-10 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between transition hover:bg-opacity-20">
+                                    <div>
+                                        <p class="text-sm text-white">
+                                            🎮 Game {{ match.game_number }}<br>
+                                            <span class="font-semibold">{{ match.team1 }}</span>
+                                            <span class="text-gray-400">vs</span>
+                                            <span class="font-semibold">{{ match.team2 }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="mt-2 sm:mt-0">
+                                        {% if match.is_completed %}
+                                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">✅ {{ match.winner }} Won</span>
+                                        {% elif match.is_started %}
+                                            <span class="bg-yellow-400 text-black text-xs px-3 py-1 rounded-full animate-pulse">🔥 In Progress</span>
+                                        {% else %}
+                                            <span class="bg-gray-300 text-black text-xs px-3 py-1 rounded-full">⏳ Not Started</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>

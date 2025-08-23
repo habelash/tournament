@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>All Registrations PDF</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <style>
+    table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; }
+    th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h2>All Tournament Registrations</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Category</th>
+        <th>Partner 1</th>
+        <th>Partner 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in registrations %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ r.player_name }}</td>
+        <td>{{ r.phone_number }}</td>
+        <td>{{ r.player_email }}</td>
+        <td>{{ r.category }}</td>
+        <td>
+          {% if r.partner1_name %}
+            {{ r.partner1_name }}<br>{{ r.partner1_phone }}<br>{{ r.partner1_email }}
+          {% endif %}
+        </td>
+        <td>
+          {% if r.partner2_name %}
+            {{ r.partner2_name }}<br>{{ r.partner2_phone }}<br>{{ r.partner2_email }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

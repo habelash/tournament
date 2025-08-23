@@ -1,0 +1,46 @@
+.bracket {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  position: relative;
+  padding: 20px;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  margin-right: 50px;
+}
+
+.match {
+  background: #a8dadc;
+  margin: 20px 0;
+  padding: 10px;
+  border-radius: 6px;
+  position: relative;
+  width: 200px;
+  font-weight: bold;
+  color: #1d3557;
+}
+
+.match::after {
+  content: '';
+  position: absolute;
+  right: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 2px;
+  background: #457b9d;
+}
+
+.stage:not(:last-child) .match::after {
+  border-top: 2px solid #457b9d;
+}
+
+.stage + .stage .match {
+  margin-top: 60px;
+}

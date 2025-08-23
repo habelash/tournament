@@ -1,0 +1,9 @@
+<!-- templates/expenses/expense_list.html -->
+{% for expense in expenses %}
+  <div>
+    <strong>{{ expense.title }}</strong> - ₹{{ expense.amount }}
+    {% if expense.receipt %}
+      <br><a href="{{ expense.receipt.url }}" target="_blank">View Receipt</a>
+    {% endif %}
+  </div>
+{% endfor %}

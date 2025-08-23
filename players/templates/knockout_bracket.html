@@ -1,0 +1,264 @@
+{% load bracket_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Matches</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .match-box {
+      width: 14rem;
+      min-height: 5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .match-box:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 to-slate-200 min-h-screen">
+  <div class="p-6 w-full">
+    <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-10">
+      Tournament Matches - {{ tournament.name }}
+    </h1>
+
+    <!-- Nav Tabs -->
+    <div class="flex justify-center mb-10 px-4">
+      <div class="flex flex-wrap justify-center gap-2 rounded-lg overflow-hidden border border-gray-300 bg-white shadow-sm p-2">
+        {% for cat in categories %}
+          <a href="?category={{ cat }}"
+            class="px-4 py-2 text-xs sm:text-sm font-medium text-center rounded-md transition 
+                    {% if cat == category %}
+                      bg-indigo-600 text-white
+                    {% else %}
+                      text-gray-700 hover:bg-indigo-100
+                    {% endif %}">
+            {{ cat|title }}
+          </a>  
+        {% endfor %}
+      </div>
+    </div>
+
+
+    <!-- Category Title -->
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">
+        {{ category|title }}
+      </h2>
+
+
+    <!-- League & Knockout Section -->
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- League Matches -->
+      <div class="w-full lg:w-1/3">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">League Matches</h3>
+        {% if league_matches_by_group %}
+          {% for league_label, matches in league_matches_by_group.items %}
+            <div class="mb-4">
+              <h4 class="text-md font-bold text-indigo-600 mb-2 text-center">League {{ league_label }}</h4>
+              <div class="flex flex-col items-center space-y-4">
+                {% for match in matches %}
+                  <div class="match-box bg-white border border-gray-300 shadow-sm rounded-xl p-4 text-sm w-full max-w-xs" id="league-match-{{ match.id }}">
+                    <div class="font-semibold text-gray-800 text-center">
+                      {% if match.team1 %}
+                        {{ match.team1.player_name }}{% if match.team1.partner_name %} & {{ match.team1.partner_name }}{% endif %}
+                      {% else %} TBD {% endif %}
+                    </div>
+                    <div class="text-center text-gray-400 font-bold my-1">vs</div>
+                    <div class="font-semibold text-gray-800 text-center">
+                      {% if match.team2 %}
+                        {{ match.team2.player_name }}{% if match.team2.partner_name %} & {{ match.team2.partner_name }}{% endif %}
+                      {% else %} TBD {% endif %}
+                    </div>
+                      <div class="mt-2 text-xs text-center text-gray-500 bg-gray-100 rounded py-1 score">
+                      {% if match.team1_score or match.team2_score %}
+
+                          Score: {{ match.team1_score|default:0 }} - {{ match.team2_score|default:0 }}
+                     
+                      {% endif %}
+                      </div> 
+
+                      <!-- Winner / Match Status: Always rendered -->
+                      <div class="mt-2 text-xs text-center font-medium winner {% if match.is_completed %}text-green-600{% elif match.is_started %}text-yellow-500{% else %}text-gray-500{% endif %}">
+                        {% if match.is_completed %}
+                          Winner:
+                          {% if match.winner %}
+                            {{ match.winner.player_name }}{% if match.winner.partner_name %} & {{ match.winner.partner_name }}{% endif %}
+                          {% else %}
+                            Decided
+                          {% endif %}
+                        {% elif match.is_started %}
+                          Match Started
+                        {% else %}
+                          Pending
+                        {% endif %}
+                      </div>
+
+
+
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-center text-gray-500">No league matches available.</p>
+        {% endif %}
+      </div>
+
+      <!-- Knockout Bracket -->
+      <div class="w-full lg:w-2/3 overflow-x-auto relative">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">Knockout Bracket</h3>
+        {% if grouped_matches %}
+          <div class="relative">
+            <div id="knockout-bracket" class="flex gap-24 relative">
+              {% for round_name, matches in grouped_matches.items %}
+                <div class="flex flex-col space-y-6 items-center min-w-[14rem] flex-shrink-0" data-round="{{ forloop.counter0 }}">
+                  <h4 class="text-md font-bold text-indigo-700 border-b pb-1 whitespace-nowrap">{{ round_name }}</h4>
+                  {% for m in matches %}
+                    <div class="match-box bg-white border border-gray-200 shadow-sm rounded-xl p-4 text-sm w-full max-w-xs"
+                         id="knockout-match-{{ m.id }}">
+                      <div class="font-semibold text-gray-800 text-center">
+                        {% if m.team1 %}
+                          {{ m.team1.player_name }}{% if m.team1.partner_name %} & {{ m.team1.partner_name }}{% endif %}
+                        {% else %} TBD {% endif %}
+                      </div>
+                      <div class="text-center text-gray-400 font-bold my-1">vs</div>
+                      <div class="font-semibold text-gray-800 text-center">
+                        {% if m.team2 %}
+                          {{ m.team2.player_name }}{% if m.team2.partner_name %} & {{ m.team2.partner_name }}{% endif %}
+                        {% else %} TBD {% endif %}
+                      </div>
+                      <div class="mt-2 text-xs text-center text-gray-500 bg-gray-100 rounded py-1 score">
+                      {% if m.team1_score or m.team2_score %}
+                          Score: {{ m.team1_score|default:0 }} - {{ m.team2_score|default:0 }}
+                      {% endif %}
+                      </div>   
+                      <div class="mt-2 text-xs text-center font-medium text-green-600 winner">
+                      {% if m.is_completed %}
+                          Winner: 
+                          {% if m.winner %}
+                            {{ m.winner.player_name }}{% if m.winner.partner_name %} & {{ m.winner.partner_name }}{% endif %}
+                          {% else %}
+                            Decided
+                          {% endif %}
+
+                      {% elif m.is_started %}
+                        <div class="mt-2 text-xs text-center font-medium text-yellow-500">
+                          Match Started
+                        </div>
+                      {% else %}
+                        <div class="mt-2 text-xs text-center font-medium text-gray-500">
+                          Pending
+                        </div>
+                      {% endif %}
+                    </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+            <svg class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" id="bracket-lines"></svg>
+          </div>
+        {% else %}
+          <p class="text-center text-gray-500">No knockout matches.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG Lines and Winner Labels -->
+  <script>
+    window.addEventListener('load', () => {
+      const svg = document.getElementById('bracket-lines');
+      const rounds = document.querySelectorAll('#knockout-bracket > div');
+      svg.innerHTML = '';
+
+      for (let i = 0; i < rounds.length - 1; i++) {
+        const currentMatches = rounds[i].querySelectorAll('.match-box');
+        const nextMatches = rounds[i + 1].querySelectorAll('.match-box');
+
+        currentMatches.forEach((match, idx) => {
+          const from = match.getBoundingClientRect();
+          const to = nextMatches[Math.floor(idx / 2)]?.getBoundingClientRect();
+          const svgRect = svg.getBoundingClientRect();
+          if (!to) return;
+
+          const x1 = from.right - svgRect.left;
+          const y1 = from.top + from.height / 2 - svgRect.top;
+          const x2 = to.left - svgRect.left;
+          const y2 = to.top + to.height / 2 - svgRect.top;
+
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", `M${x1},${y1} C${x1 + 40},${y1} ${x2 - 40},${y2} ${x2},${y2}`);
+          path.setAttribute("stroke", "#cbd5e1");
+          path.setAttribute("stroke-width", "2");
+          path.setAttribute("fill", "none");
+          svg.appendChild(path);
+
+          const winnerText = match.querySelector('.winner');
+          if (winnerText) {
+            const name = winnerText.textContent.replace("Winner: ", "").trim();
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", (x1 + x2) / 2);
+            text.setAttribute("y", (y1 + y2) / 2 - 8);
+            text.setAttribute("fill", "#4f46e5");
+            text.setAttribute("font-size", "10");
+            text.setAttribute("font-family", "sans-serif");
+            text.setAttribute("text-anchor", "middle");
+            text.textContent = name;
+            svg.appendChild(text);
+          }
+        });
+      }
+    });
+  </script>
+<script>
+const socket = new WebSocket("ws://" + window.location.host + "/ws/score_updates/");
+
+socket.onopen = () => {
+    console.log("✅ WebSocket connected");
+};socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const matchId = data.match_id;
+
+    const el = data.match_type === "league"
+      ? document.getElementById(`league-match-${matchId}`)
+      : document.getElementById(`knockout-match-${matchId}`);
+
+    if (!el) {
+        console.warn(`❌ No container found for match ID ${matchId}`);
+        return;
+    }
+
+    // 🔁 Score update
+    const score = el.querySelector('.score');
+    if (score && 'team1_score' in data && 'team2_score' in data) {
+        score.textContent = `Score: ${data.team1_score} - ${data.team2_score}`;
+    }
+
+    // 🔁 Winner/status update
+    const winner = el.querySelector('.winner');
+    if (winner) {
+        if (data.is_complete) {
+            winner.textContent = `Winner: ${data.winner || 'Decided'}`;
+            winner.classList.remove("text-yellow-500", "text-gray-500");
+            winner.classList.add("text-green-600");
+        } else if (data.is_started) {
+            winner.textContent = "Match Started";
+            winner.classList.remove("text-green-600", "text-gray-500");
+            winner.classList.add("text-yellow-500");
+        } else {
+            winner.textContent = "Pending";
+            winner.classList.remove("text-green-600", "text-yellow-500");
+            winner.classList.add("text-gray-500");
+        }
+    }
+};
+
+
+</script>
+
+</body>
+</html>
