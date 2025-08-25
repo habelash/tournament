@@ -456,7 +456,7 @@ def update_score(request):
 
                     for placeholder, registration in placeholders.items():
                         try:
-                            league_assignment = LeagueAssignment.objects.get(team=registration, category=match.category)
+                            league_assignment = LeagueAssignment.objects.get(team=registration, category__category=match.category)
                         except LeagueAssignment.DoesNotExist:
                             print(f"❌ No LeagueAssignment found for {registration}")
                             continue

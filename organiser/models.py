@@ -38,7 +38,7 @@ class Tournament(models.Model):
 
 class TournamentCategory(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="tournament_categories")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="tournament_categories")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="tournament_categories")  
     is_active = models.BooleanField(default=False)
     started_at = models.DateTimeField(null=True, blank=True)
 
