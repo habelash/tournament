@@ -529,8 +529,10 @@ def start_tournament_category(request, tournament_id):
 
         # Get TournamentCategory and category_id
         tc = get_object_or_404(TournamentCategory, id=category_id, tournament=tournament)
-        category_id_only = tc.category.id
 
+        category_id_only = tc.category.id
+        print("category_id", category_id)
+        print("category_id_only", category_id_only)
         if category_id_only in grouped:
             for league, teams in grouped[category_id_only].items():
                 team_list = list({t.id: t for t in teams}.values())

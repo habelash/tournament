@@ -1,6 +1,6 @@
 # admin.py
 from django.contrib import admin
-from .models import Expense, Tournament, Category,TournamentCategory
+from .models import Expense, Tournament, Category,TournamentCategory,Court
 from django.utils.html import format_html
 
 
@@ -29,6 +29,10 @@ class TournamentAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+
+@admin.register(Court)
+class CourtAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 

@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
 from .models import TournamentRegistration
 from django.shortcuts import get_object_or_404
-from organiser.models import Tournament
+from organiser.models import Tournament, TournamentCategory
 # Create your views here.
 
 def tournament_register(request, tournament_id):
+    # Always fetch tournament once
+    tournament = get_object_or_404(Tournament, id=tournament_id)
+
     if request.method == "POST":
         player_name = request.POST.get("player_name")
         phone_number = request.POST.get("phone_number")
@@ -17,32 +20,36 @@ def tournament_register(request, tournament_id):
         partner_2_email = request.POST.get("partner2_email")
         category = request.POST.get("category")
 
-        # Save registration immediately
+        # Make sure the category exists
+        category_instance = get_object_or_404(TournamentCategory, pk=category)
+
+        # Save registration
         registration = TournamentRegistration.objects.create(
+            tournament=tournament,
             player_name=player_name,
             phone_number=phone_number,
-            partner_name=partner_name,
             player_email=player_email,
+            partner_name=partner_name,
             partner_phone_number=partner_phone_number,
             partner_email=partner_email,
-            partner_2_name = partner_2_name,
-            partner_2_number = partner_2_number,
-            partner_2_email = partner_2_email,
-            category=category,
-            payment_status='Pending'  # Add this field in model
+            partner_2_name=partner_2_name,
+            partner_2_number=partner_2_number,
+            partner_2_email=partner_2_email,
+            category=category_instance,
+            payment_status="Pending",
         )
 
-        # Redirect to payment page passing registration id
-        return redirect('paymentgateway:phonepe_initiate', registration_id=registration.id)
+        # Redirect to payment
+        return redirect("paymentgateway:phonepe_initiate", registration_id=registration.id)
 
-    tournament = get_object_or_404(Tournament, id=tournament_id)
+    # For GET request → load registration page
     categories = tournament.tournament_categories.select_related("category")
     context = {
         "tournament": tournament,
-        "categories": categories,  # added here
+        "categories": categories,
     }
-    return render(request, "registration.html",context)
-    
+    return render(request, "registration.html", context)
+ 
 def home(request):
     return render(request, "home.html")
 

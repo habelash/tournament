@@ -43,7 +43,7 @@ def send_transaction_email(player_email, partner_email, partner_2_email, player_
     msg.send()
 
 def get_amount_by_category(category):
-    return 49900 if category == 'singles' else 99900 if category == 'triplets' else 79900
+    return 100 if category == 'singles' else 100 if category == 'triplets' else 100
 
 def initiate_phonepe_payment(request, registration_id):
     try:
@@ -108,7 +108,7 @@ def phonepe_callback(request):
         if status_resp and status_resp.state in ['SUCCESS', 'COMPLETED']:
             registration = TournamentRegistration.objects.get(phonepay_order_id=merchant_transaction_id)
             amount_paid = get_amount_by_category(registration.category)
-            
+
             # First try top-level amount
             if status_resp.amount:
                 amount_paid = status_resp.amount
@@ -134,6 +134,7 @@ def phonepe_callback(request):
             # Create payment entry
             Payment.objects.create(
                 registration=registration,
+                tournament=registration.tournament,
                 order_id=merchant_transaction_id,
                 txn_id=txn_id,
                 txn_amount=amount_paid_inr,
@@ -143,7 +144,6 @@ def phonepe_callback(request):
 
             registration.payment_status = "Paid"
             registration.save()
-
             # Get player info from your model or request
             player_name = registration.player_name 
             partner_name = registration.partner_name 
@@ -152,7 +152,7 @@ def phonepe_callback(request):
             partner_2_email = registration.partner_2_email
             player_name = registration.player_name
             partner_2_name = registration.partner_2_name
-            category = registration.get_category_display()
+            category = registration.category
 
             # Simulate Paytm POST data (normally comes from Paytm)
             payment_params = {

@@ -7,6 +7,7 @@ from .forms import TournmentMatchAdminForm
 @admin.register(LeagueAssignment)
 class LeagueAssignmentAdmin(admin.ModelAdmin):
     list_display = ('tournament','team', 'league', 'category')
+    list_display_links = ('tournament','team', 'league', 'category')
     actions = ['refresh_league_assignments']
 
     def refresh_league_assignments(self, request, queryset):

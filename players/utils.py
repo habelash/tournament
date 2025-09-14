@@ -23,7 +23,7 @@ def reshuffle_leagues(max_per_league=3):
                 tournament=team.tournament,
                 defaults={
                     'league': league_name,
-                    'category': category,
+                    'category': team.category,
                 }
             )
 

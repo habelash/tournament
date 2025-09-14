@@ -71,8 +71,9 @@ def fixture_view(request):
     return render(request, 'matches.html', {'bracket_data': bracket_data})
 
 
-def league(request):
-    teams = LeagueAssignment.objects.select_related('team').order_by('category', 'league', 'id')  # fallback sort
+def league(request, tournament_id):
+    tournament = get_object_or_404(Tournament, id=tournament_id)
+    teams = LeagueAssignment.objects.filter(tournament=tournament).select_related('team').order_by('category', 'league', 'id')  # fallback sort
     return render(request, 'league.html', {'teams': teams})
 
 
@@ -145,7 +146,10 @@ def knockout_bracket_view(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
 
     selected_category = request.GET.get("category")
-    categories = TournmentMatch.objects.filter(tournament=tournament).values_list("category", flat=True).distinct()
+    # categories = TournmentMatch.objects.filter(tournament=tournament).values_list("category", flat=True).distinct()
+    categories = (TournmentMatch.objects.filter(tournament=tournament).values_list("category", "category__name").distinct())
+
+
 
     if not selected_category and categories:
         selected_category = categories[0]

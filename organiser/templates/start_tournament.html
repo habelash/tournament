@@ -1,26 +1,19 @@
 {% load static %}
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-  /* Dark blue & yellow theme (user preference) */
-  :root{
-    --brand-blue: #0b3d91;
-    --brand-yellow: #ffcc00;
-    --accent-white: #ffffff;
-  }
-  .brand-header{ background: var(--brand-blue); color: var(--accent-white); }
-  .btn-brand{ background: var(--brand-yellow); color: #000; border: none; }
-  .card-brand{ border-left: 6px solid var(--brand-yellow); }
+  :root{ --brand-blue:#0b3d91; --brand-yellow:#ffcc00; --accent-white:#ffffff; }
+  .brand-header{ background:var(--brand-blue); color:var(--accent-white); }
+  .btn-brand{ background:var(--brand-yellow); color:#000; border:none; }
+  .card-brand{ border-left:6px solid var(--brand-yellow); }
 </style>
 
-<div class="container py-4">
+<div id="page" class="container py-4" data-tournament-id="{{ tournament.id }}">
   <div class="d-flex justify-content-between align-items-center mb-3 brand-header p-3 rounded">
     <div>
       <h3 class="mb-0">Start Game Category</h3>
       <small>Tournament: <strong>{{ tournament.name }}</strong></small>
-    </div>
-    <div>
-      {% comment %} <a href="{% url 'tournament_detail' tournament.id %}" class="btn btn-light">Back to tournament</a> {% endcomment %}
     </div>
   </div>
 
@@ -31,49 +24,67 @@
           <h5 class="card-title">Categories</h5>
           <p class="text-muted">Select which category you want to start for this tournament.</p>
 
-          <!-- Categories list -->
-         <div class="list-group" id="categories-list">
+          <div class="list-group" id="categories-list">
             {% for category in categories %}
-            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap" data-category-slug="{{ category.slug }}">
-              <div>
-                <strong>{{ category.category }}</strong>
-                <div class="small text-muted">{{ category.description|default:"No description" }}</div>
-              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+                   data-category-id="{{ category.id }}" data-category-slug="{{ category.slug }}">
+                <div>
+                  <strong>{{ category.category }}</strong>
+                  <div class="small text-muted">{{ category.description|default:"No description" }}</div>
+                </div>
 
-              <div class="d-flex gap-2 align-items-center">
-                {% if category.is_active %}
-                  <span class="badge bg-success">Active</span>
-                {% else %}
-                  <span class="badge bg-secondary">Not started</span>
-                {% endif %}
-
-                <button class="btn btn-sm btn-brand start-category-btn"
-                        data-category-slug="{{ category.slug }}"
-                        {% if category.is_active %}disabled{% endif %}>
+                <div class="d-flex gap-2 align-items-center">
                   {% if category.is_active %}
-                      <span class="badge bg-success">Started</span>
+                    <span class="badge bg-success">Active</span>
+                    <button class="btn btn-sm btn-secondary" disabled>Started</button>
                   {% else %}
-                      <form method="post" action="{% url 'start_tournament_category' tournament.id %}" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="category_id" value="{{ category.id }}">
-                  <button type="submit" class="btn btn-sm btn-primary">
-                      {% if category.is_active %}Started{% else %}Start{% endif %}
-                  </button>
-              </form>
+                    <span class="badge bg-secondary">Not started</span>
+
+                    <!-- single start button (opens modal). type="button" prevents accidental submit -->
+                    <button type="button"
+                            class="btn btn-sm btn-brand start-category-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmStartModal"
+                            data-category-id="{{ category.id }}"
+                            data-category-name="{{ category.category }}"
+                            data-category-slug="{{ category.slug }}">
+                      Start
+                    </button>
                   {% endif %}
-                </button>
+                </div>
               </div>
-            </div>
             {% empty %}
               <div class="alert alert-warning">No categories found for this tournament.</div>
             {% endfor %}
           </div>
-
         </div>
       </div>
 
-      <!-- Live status area -->
-      <div id="status-area"></div>
+      <!-- Confirmation Modal -->
+      <div class="modal fade" id="confirmStartModal" tabindex="-1" aria-labelledby="confirmStartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmStartModalLabel">Confirm Start</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to start the category <strong id="modal-category-name"></strong>?
+            </div>
+            <div class="modal-footer">
+              <!-- Normal POST form; submission will be handled by your Django view -->
+              <form id="confirmStartForm" method="post" action="{% url 'start_tournament_category' tournament.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="category_id" id="modal-category-id" value="">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Yes, Start</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="status-area" class="mt-3"></div>
     </div>
 
     <div class="col-lg-4">
@@ -81,114 +92,41 @@
         <div class="card-body">
           <h6>Quick actions</h6>
           <p class="small text-muted">Useful shortcuts for tournament organisers.</p>
-          <button id="start-all" class="btn btn-outline-primary btn-sm mb-2">Start All Not-Started Categories</button>
           <button id="refresh-btn" class="btn btn-outline-secondary btn-sm">Refresh</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-body">
-          <h6>Notes</h6>
-          <ul class="small">
-            <li>The action will call a POST endpoint and expects JSON response `{ "success": true, "message": "..." }`.</li>
-            <li>Buttons will be disabled while the request is in-progress.</li>
-          </ul>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Bootstrap bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-  // CSRF helper for fetch per Django docs
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-  const csrftoken = getCookie('csrftoken');
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log('Template JS loaded');
 
-  async function startCategory(tournamentId, categorySlug, button){
-    try{
-      button.disabled = true;
-      const originalText = button.innerText;
-      button.innerText = 'Starting...';
+    const confirmModalEl = document.getElementById('confirmStartModal');
+    if (!confirmModalEl) { console.error('confirmStartModal element missing'); return; }
 
-      const resp = await fetch(`/organiser/${tournamentId}/categories/${categorySlug}/start/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify({})
-      });
-      const data = await resp.json();
+    // Show.bs.modal event gives the button that triggered the modal in event.relatedTarget
+    confirmModalEl.addEventListener('show.bs.modal', function (event) {
+      const triggerBtn = event.relatedTarget;
+      if (!triggerBtn) { console.warn('Modal opened without relatedTarget'); return; }
 
-      const statusArea = document.getElementById('status-area');
-      const alert = document.createElement('div');
-      alert.className = `alert ${data.success ? 'alert-success' : 'alert-danger'} mt-3`;
-      alert.innerText = data.message || (data.success ? 'Started' : 'Failed');
-      statusArea.prepend(alert);
+      const catId = triggerBtn.getAttribute('data-category-id');
+      const catName = triggerBtn.getAttribute('data-category-name') || triggerBtn.getAttribute('data-category-slug');
 
-      if(data.success){
-        // Mark badge + disable button
-        const parent = button.closest('[data-category-slug]');
-        parent.querySelector('.badge').className = 'badge bg-success';
-        button.innerText = 'Started';
-        button.disabled = true;
-      } else {
-        button.innerText = originalText;
-        button.disabled = false;
-      }
+      console.log('Opening confirm modal for category:', { catId, catName });
 
-    } catch(err){
-      console.error(err);
-      alert('Network error: ' + err.message);
-      button.disabled = false;
-      button.innerText = 'Start';
-    }
-  }
+      document.getElementById('modal-category-id').value = catId || '';
+      document.getElementById('modal-category-name').textContent = catName || '—';
+    });
 
-  document.addEventListener('click', function(e){
-    if(e.target.matches('.start-category-btn')){
-      const btn = e.target;
-      const slug = btn.dataset.categorySlug;
-      const tournamentId = {{ tournament.id|default:0 }};
-      if(!tournamentId){
-        alert('Tournament id not provided in template context.');
-        return;
-      }
-      if(confirm('Start category "' + slug + '" for this tournament?')){
-        startCategory(tournamentId, slug, btn);
-      }
-    }
-
-    if(e.target.id === 'start-all'){
-      const tournamentId = {{ tournament.id|default:0 }};
-      const buttons = Array.from(document.querySelectorAll('.start-category-btn:not([disabled])'));
-      if(buttons.length === 0){ alert('No categories to start'); return; }
-      if(confirm('Start all not-started categories?')){
-        buttons.forEach(btn => {
-          const slug = btn.dataset.categorySlug;
-          startCategory(tournamentId, slug, btn);
-        });
-      }
-    }
-
-    if(e.target.id === 'refresh-btn'){
-      location.reload();
-    }
+    // Simple UI helper for refresh button
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', () => location.reload());
   });
 </script>
 
 {% endblock %}
-

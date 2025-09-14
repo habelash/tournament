@@ -75,17 +75,17 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'home' %}">🏆 Tournament Hub</a>
+    <a class="navbar-brand" href="{% url 'registration:home' %}">🏆 Tournament Hub</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon text-light"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">Home</a>
+          <a class="nav-link" href="{% url 'registration:home' %}">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="{% url 'home' %}">Register</a>
+          <a class="nav-link active" href="{% url 'registration:home' %}">Register</a>
         </li>
       </ul>
     </div>
@@ -97,8 +97,7 @@
 
 {% for category in category_list %}
   <div class="mb-5">
-    <h4 class="category-header">{{ category.list.0.team.get_category_display }}</h4>
-
+    <h4 class="category-header">{{ category.list.1.team.category }}</h4>
     {% regroup category.list by league as league_list %}
 
     {% for league in league_list %}

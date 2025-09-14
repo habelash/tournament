@@ -1,13 +1,13 @@
 from django.db import models
 from registration.models import TournamentRegistration
-from organiser.models import Tournament,Category
+from organiser.models import Tournament,TournamentCategory,Category, Court
 # Create your models here.
 
 class LeagueAssignment(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="League")
     team = models.OneToOneField(TournamentRegistration, on_delete=models.CASCADE)
     league = models.CharField(max_length=1)  # A, B, C...
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="league_assignments")
+    category = models.ForeignKey(TournamentCategory, on_delete=models.CASCADE, related_name="league_assignments")
 
 
     def __str__(self):
@@ -17,14 +17,20 @@ class LeagueAssignment(models.Model):
 class TournmentMatch(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches")
     game_number = models.PositiveIntegerField()
-    category = models.CharField(max_length=100)
-    league = models.CharField(max_length=1, blank=True, null=True)  # Optional for knockout
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="categories")  
+    league = models.CharField(max_length=2, blank=True, null=True)  # Optional for knockout
 
     round = models.CharField(max_length=50, default='League')  # No fixed choices
 
     team1 = models.ForeignKey(TournamentRegistration, on_delete=models.CASCADE, related_name='team1_matches', null=True, blank=True)
     team2 = models.ForeignKey(TournamentRegistration, on_delete=models.CASCADE, related_name='team2_matches', null=True, blank=True)
-
+    court = models.ForeignKey(
+        Court,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="matches"
+    )
     team1_score = models.PositiveIntegerField(null=True, blank=True)
     team2_score = models.PositiveIntegerField(null=True, blank=True)
 
