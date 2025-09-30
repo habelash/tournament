@@ -1,6 +1,6 @@
 # urls.py
 from django.urls import path
-from .views import expenses, organisers_matches, update_score, start_match,start_tournament_category,tournament
+from .views import expenses, organisers_matches, update_score, start_match,start_tournament_category,tournament,profile
 
 urlpatterns = [
     path('expenses/', expenses, name='expenses'),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('organiser/<int:tournament_id>/matches', organisers_matches, name='organisers_matches'),
     path('start_match', start_match, name='start_match'),
     path('update_score', update_score, name='update_score'),
+    path('profile', profile, name='profile'),
 ]
