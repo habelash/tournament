@@ -9,6 +9,6 @@ urlpatterns = [
     path('fixture_view', views.fixture_view, name='fixture_view'),
     path('tournament/<int:tournament_id>/league/', views.league, name='league'),
     path('matches/', views.matches_view, name='matches'),
-    path('tournaments/', views.tournament, name='tournament'),
+
     path('tournament/<int:tournament_id>/matches/', views.knockout_bracket_view, name='knockout_bracket'),
 ]

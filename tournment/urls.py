@@ -23,8 +23,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('registration.urls', 'registration'), namespace='registration')),
     path('', include(('paymentgateway.urls', 'paymentgateway'), namespace='paymentgateway')),
-    path('', include('players.urls')),
+    path('', include(('players.urls','players'), namespace='players')),
     path('', include('organiser.urls')),
+    path('', include('referee.urls')),
 ]
 
 

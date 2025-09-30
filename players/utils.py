@@ -4,12 +4,20 @@ import string
 from .models import LeagueAssignment
 from registration.models import TournamentRegistration
 
-def reshuffle_leagues(max_per_league=3):
+import string
+from collections import defaultdict
+
+def reshuffle_leagues(tournament_id, max_per_league):
     league_labels = list(string.ascii_uppercase)
     category_teams = defaultdict(list)
 
-    # Group teams by category
-    for team in TournamentRegistration.objects.filter(payment_status__iexact='paid'):
+    # Group teams by category for this tournament only
+    teams = TournamentRegistration.objects.filter(
+        tournament_id=tournament_id,
+        payment_status__iexact='paid'
+    )
+
+    for team in teams:
         category_teams[team.category].append(team)
 
     # Assign to leagues
@@ -26,6 +34,7 @@ def reshuffle_leagues(max_per_league=3):
                     'category': team.category,
                 }
             )
+
 
 def get_round_name(num_teams_remaining):
     if num_teams_remaining == 2:

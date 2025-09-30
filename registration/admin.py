@@ -6,7 +6,7 @@ from .models import Payment
 @admin.register(TournamentRegistration)
 class TournmentAdmin(admin.ModelAdmin):
     list_display = ('tournament', 'player_name', 'partner_name', 'phone_number','category','payment_status')
-    list_filter = ('category','payment_status')
+    list_filter = ('tournament','category__category','payment_status')
     search_fields = ('player_name', 'partner_name')
 
 @admin.register(Payment)

@@ -24,8 +24,8 @@ class ExpenseAdmin(admin.ModelAdmin):
     
 @admin.register(Tournament)
 class TournamentAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+    list_display = ("name","is_active")
+    search_fields = ("name","is_active")
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

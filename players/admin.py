@@ -8,11 +8,22 @@ from .forms import TournmentMatchAdminForm
 class LeagueAssignmentAdmin(admin.ModelAdmin):
     list_display = ('tournament','team', 'league', 'category')
     list_display_links = ('tournament','team', 'league', 'category')
+    list_filter = ('tournament','league','category')
     actions = ['refresh_league_assignments']
-
+    
     def refresh_league_assignments(self, request, queryset):
-        reshuffle_leagues()
-        self.message_user(request, "✅ Leagues reshuffled successfully!", messages.SUCCESS)
+        # Get distinct tournament IDs from the selected assignments
+        tournament_ids = queryset.values_list("tournament_id", flat=True).distinct()
+
+        # Run reshuffle for each selected tournament
+        for t_id in tournament_ids:
+            reshuffle_leagues(tournament_id=t_id, max_per_league=3)  # 👈 change 3 to any default you want
+
+        self.message_user(
+            request, 
+            f"✅ Leagues reshuffled successfully for {len(tournament_ids)} tournament(s)!",
+            messages.SUCCESS
+        )
 
     refresh_league_assignments.short_description = "🔁 Refresh League Assignments"
 

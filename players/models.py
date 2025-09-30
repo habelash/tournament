@@ -17,7 +17,7 @@ class LeagueAssignment(models.Model):
 class TournmentMatch(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches")
     game_number = models.PositiveIntegerField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="categories")  
+    category = models.ForeignKey(TournamentCategory, on_delete=models.CASCADE, related_name="categories")  
     league = models.CharField(max_length=2, blank=True, null=True)  # Optional for knockout
 
     round = models.CharField(max_length=50, default='League')  # No fixed choices

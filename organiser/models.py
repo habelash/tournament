@@ -26,6 +26,7 @@ class Category(models.Model):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=False)
     categories = models.ManyToManyField(
         Category,
         through="TournamentCategory",
@@ -39,6 +40,12 @@ class Tournament(models.Model):
 class TournamentCategory(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="tournament_categories")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="tournament_categories")  
+    entry_fee = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00,
+        help_text="Entry fee for this category"
+    )
     is_active = models.BooleanField(default=False)
     started_at = models.DateTimeField(null=True, blank=True)
 

@@ -6,6 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 import uuid
+from organiser.models import TournamentCategory
 from phonepe.sdk.pg.env import Env
 from phonepe.sdk.pg.payments.v2.standard_checkout_client import StandardCheckoutClient
 from phonepe.sdk.pg.payments.v2.models.request.standard_checkout_pay_request import StandardCheckoutPayRequest
@@ -42,16 +43,38 @@ def send_transaction_email(player_email, partner_email, partner_2_email, player_
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
-def get_amount_by_category(category):
-    return 100 if category == 'singles' else 100 if category == 'triplets' else 100
+def get_amount_by_category(tournament_id, category_name):
+    """
+    Get the entry fee for a specific category in a tournament by tournament ID.
+    
+    Args:
+        tournament_id: int, ID of the tournament
+        category_name: str, e.g., 'singles', 'doubles', 'triplets'
+        
+    Returns:
+        Decimal: entry fee
+    """
+    print(category_name)
+    try:
+        tc = TournamentCategory.objects.get(
+            tournament_id=tournament_id,
+            category__name__iexact=category_name
+        )
+        return tc.entry_fee
+    except TournamentCategory.DoesNotExist:
+        return 0  # or raise an exception if preferred
+
 
 def initiate_phonepe_payment(request, registration_id):
     try:
         registration = TournamentRegistration.objects.get(id=registration_id)
+        tournament_id = registration.tournament.id
     except TournamentRegistration.DoesNotExist:
         return render(request, 'payment_failure.html', {'error': 'Registration not found'})
 
-    amount = get_amount_by_category(registration.category)
+    amount = get_amount_by_category(tournament_id,registration.category)
+    amount = amount * 100
+    
     merchant_order_id = f"TXN{registration.id}{uuid.uuid4().hex[:6]}"
     registration.phonepay_order_id = merchant_order_id
     registration.save()
@@ -90,6 +113,7 @@ def initiate_phonepe_payment(request, registration_id):
 def phonepe_callback(request):
     
     merchant_transaction_id = request.POST.get("merchantTransactionId") or request.GET.get("merchantTransactionId")
+    print(merchant_transaction_id)
 
     if not merchant_transaction_id:
         return render(request, 'payment_failure.html', {'error': 'Missing merchantTransactionId'})
@@ -162,7 +186,7 @@ def phonepe_callback(request):
                 "STATUS": "SUCCESS"
             }
             send_transaction_email(player_email, partner_email, partner_2_email, player_name, partner_name, partner_2_name, category, payment_params)
-            reshuffle_leagues()
+            reshuffle_leagues(registration.tournament.id, max_per_league=4)
             return render(request, 'payment_success.html')
 
         return render(request, 'payment_failure.html')

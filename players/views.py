@@ -1,14 +1,15 @@
 from registration.models import Payment
 from registration.models import TournamentRegistration
 from .models import LeagueAssignment, TournmentMatch,Tournament
+from .models import TournamentCategory
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404, render
 import pdfkit  # Or use WeasyPrint or xhtml2pdf
 from collections import defaultdict
 import json
-
 import re
+
 # Create your views here.
 
 def registered_players(request):
@@ -107,21 +108,10 @@ def get_knockout_matches_grouped_by_base_round(tournament, category):
     return dict(grouped)
 
 
-def knockout_bracket_view(request, tournament_id, category):
-    tournament = get_object_or_404(Tournament, id=tournament_id)
-    grouped_matches = get_knockout_matches_grouped_by_base_round(tournament, category)
-
-    return render(request, 'knockout_bracket.html', {
-        'grouped_matches': grouped_matches,
-        'tournament': tournament,
-        'category': category,
-    })
-
-
 def get_knockout_matches_grouped_by_base_round(tournament):
     rounds = TournmentMatch.objects.filter(
         tournament=tournament,
-    ).order_by("game_number")
+    ).select_related("category").order_by("game_number")
 
     grouped = defaultdict(list)
     for match in rounds:
@@ -141,24 +131,52 @@ def get_round_index(round_name):
     elif round_name.startswith("F"):
         return 2
     return 0  # fallback
-
 def knockout_bracket_view(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
 
     selected_category = request.GET.get("category")
-    # categories = TournmentMatch.objects.filter(tournament=tournament).values_list("category", flat=True).distinct()
-    categories = (TournmentMatch.objects.filter(tournament=tournament).values_list("category", "category__name").distinct())
 
+    # Get distinct TournamentCategory IDs and names linked to matches
+    categories = (
+        TournmentMatch.objects.filter(tournament=tournament)
+        .values_list("category", "category__category__name")
+        .distinct()
+    )
 
+    # If no categories exist for this tournament, just render an empty page
+    if not categories:
+        return render(request, "knockout_bracket.html", {
+            "tournament": tournament,
+            "categories": [],
+            "category": None,
+            "league_matches_by_group": {},
+            "grouped_matches": {},
+            "league_to_knockout_map_json": "{}",
+        })
 
-    if not selected_category and categories:
-        selected_category = categories[0]
+    # If no category selected (GET param missing/invalid), use the first one
+    try:
+        if not selected_category:
+            selected_category = categories[0][0]  # take first category ID
+        else:
+            selected_category = int(selected_category)
+    except (ValueError, TypeError):
+        selected_category = categories[0][0]
+
+    # Now fetch TournamentCategory safely
+    tournament_category = (
+        TournamentCategory.objects.filter(id=selected_category, tournament=tournament).first()
+    )
+    if not tournament_category:
+        tournament_category = TournamentCategory.objects.filter(
+            id=categories[0][0], tournament=tournament
+        ).first()
 
     # League matches
     league_matches_qs = TournmentMatch.objects.filter(
         tournament=tournament,
-        category=selected_category,
-        round='League'
+        category=tournament_category,
+        round="League",
     )
 
     league_matches_by_group = defaultdict(list)
@@ -166,25 +184,25 @@ def knockout_bracket_view(request, tournament_id):
         league_matches_by_group[match.league].append(match)
 
     # Knockout matches
-    knockout_matches = TournmentMatch.objects.filter(
-        tournament=tournament,
-        category=selected_category
-    ).exclude(round='League')
+    knockout_matches = (
+        TournmentMatch.objects.filter(
+            tournament=tournament,
+            category=tournament_category,
+        )
+        .exclude(round="League")
+    )
 
-    # Group knockout by base round (Q/S/F)
     grouped = defaultdict(list)
     match_indices_by_grouped = defaultdict(list)
 
     for match in knockout_matches:
-        base_round = re.sub(r'\s*\d+$', '', match.round).strip()  # e.g., "Q1" -> "Q"
+        base_round = re.sub(r"\s*\d+$", "", match.round).strip()
         grouped[base_round].append(match)
         match_indices_by_grouped[base_round].append(match)
 
-    # Map league matches to knockout positions
     league_to_knockout_map = {}
-
     for match in knockout_matches:
-        base_round = re.sub(r'\s*\d+$', '', match.round).strip()
+        base_round = re.sub(r"\s*\d+$", "", match.round).strip()
         round_index = get_round_index(base_round)
         match_index = match_indices_by_grouped[base_round].index(match)
 
@@ -197,14 +215,11 @@ def knockout_bracket_view(request, tournament_id):
     return render(request, "knockout_bracket.html", {
         "tournament": tournament,
         "categories": categories,
-        "category": selected_category,
+        "category": tournament_category,
         "league_matches_by_group": dict(league_matches_by_group),
         "grouped_matches": dict(grouped),
         "league_to_knockout_map_json": json.dumps(league_to_knockout_map),
     })
 
 
-def tournament(request):
-    tournaments = Tournament.objects.all()
-    context = {'tournaments': tournaments}
-    return render (request, 'tournament.html',context)
+
