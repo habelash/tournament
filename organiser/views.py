@@ -16,13 +16,21 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.utils import timezone
 import pytz
+from django.contrib.auth.decorators import login_required, user_passes_test
+from referee.utils import is_referee_for_tournament, is_referee
 
 def expenses(request):
     expenses = Expense.objects.all()
     return render(request, 'expenses.html', {'expenses': expenses})
 
+@login_required(login_url="/referee/login/")
+@user_passes_test(is_referee, login_url="/referee/login/")
 def organisers_matches(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
+       
+    if not is_referee_for_tournament(request.user, tournament):
+        return redirect("/referee/login/")  # or return HttpResponseForbidden()
+    
     matches = TournmentMatch.objects.filter(tournament=tournament).order_by('category', 'league', 'created_at')
 
     # Group matches by category and league
@@ -403,6 +411,8 @@ def update_next_round_slot(match):
         if (next_match.team1 and not next_match.team2) or ("gets a bye" in (next_match.note or "").lower()):
             update_next_round_slot(next_match)
 
+@login_required(login_url="/referee/login/")
+@user_passes_test(is_referee, login_url="/referee/login/")
 @csrf_exempt
 def update_score(request):
     if request.method == "POST":
@@ -443,6 +453,7 @@ def update_score(request):
 
                 if all(m.is_completed for m in all_league_matches):
                     top_teams = get_top_two_teams(match.category, match.league)
+                    print(top_teams)
 
                     if len(top_teams) < 2:
                         print(f"❌ Not enough valid teams in league {match.league} to fill knockout slots.")
@@ -456,7 +467,7 @@ def update_score(request):
 
                     for placeholder, registration in placeholders.items():
                         try:
-                            league_assignment = LeagueAssignment.objects.get(team=registration, category__category=match.category)
+                            league_assignment = LeagueAssignment.objects.get(team=registration, category=match.category)
                         except LeagueAssignment.DoesNotExist:
                             print(f"❌ No LeagueAssignment found for {registration}")
                             continue
@@ -472,6 +483,7 @@ def update_score(request):
                         ).filter(
                             Q(note__icontains=placeholder)
                         )
+                        print(knockout_matches)
 
                         for ko_match in knockout_matches:
                             changed = False
@@ -505,7 +517,8 @@ def update_score(request):
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
 
-@csrf_exempt  # only for testing; remove for production
+@login_required(login_url="/referee/login/")
+@user_passes_test(is_referee, login_url="/referee/login/")
 def start_tournament_category(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
 
@@ -530,9 +543,8 @@ def start_tournament_category(request, tournament_id):
         # Get TournamentCategory and category_id
         tc = get_object_or_404(TournamentCategory, id=category_id, tournament=tournament)
 
-        category_id_only = tc.category.id
-        print("category_id", category_id)
-        print("category_id_only", category_id_only)
+        category_id_only = tc.id
+
         if category_id_only in grouped:
             for league, teams in grouped[category_id_only].items():
                 team_list = list({t.id: t for t in teams}.values())
@@ -543,7 +555,7 @@ def start_tournament_category(request, tournament_id):
                 for team1, team2 in combinations(team_list, 2):
                     exists = TournmentMatch.objects.filter(
                         tournament=tournament,
-                        category=tc.category,
+                        category=tc,
                         league=league,
                         round="League"
                     ).filter(
@@ -554,7 +566,7 @@ def start_tournament_category(request, tournament_id):
                     if not exists:
                         TournmentMatch.objects.create(
                             tournament=tournament,
-                            category=tc.category,
+                            category=tc,
                             league=league,
                             round="League",
                             team1=team1,
@@ -570,7 +582,7 @@ def start_tournament_category(request, tournament_id):
             league_keys = sorted(grouped[category_id_only].keys())
             pairs = generate_mirrored_knockout_pairs(league_keys)
             knockout_created, game_number = create_knockout_matches_from_pairs(
-                tournament, tc.category, pairs, game_number
+                tournament, tc, pairs, game_number
             )
             created += knockout_created
 
@@ -595,3 +607,7 @@ def tournament(request):
     tournaments = Tournament.objects.all()
     context = {'tournaments': tournaments}
     return render (request, 'tournament.html',context)
+
+
+def profile(request):
+    return render(request,"profile.html")
