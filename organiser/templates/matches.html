@@ -86,7 +86,29 @@
     {% endfor %}
   </div>
 </div>
-
+<!-- Start Match Modal -->
+<div class="modal fade" id="courtModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Court (Optional)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select class="form-select" id="courtSelect">
+          <option value="">Start without court</option>
+          {% for court in courts %}
+            <option value="{{ court.id }}">{{ court.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="confirmStartMatch">Start Match</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Bootstrap Modal -->
 <div class="modal fade" id="scoreModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -125,22 +147,48 @@
     new bootstrap.Modal(document.getElementById('scoreModal')).show();
   }
 
+  let selectedMatchId = null;
+
+  // Open modal
   function startMatch(matchId) {
-    fetch("{% url 'start_match' %}", {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({ match_id: matchId })
-    }).then(res => res.json()).then(data => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert("❌ Error: " + data.error);
-      }
-    });
+      selectedMatchId = matchId;
+      const courtModal = new bootstrap.Modal(document.getElementById('courtModal'));
+      courtModal.show();
   }
+
+  // Confirm button
+  document.getElementById('confirmStartMatch').addEventListener('click', function() {
+      const courtId = document.getElementById('courtSelect').value; // "" if Start without court
+
+      fetch("{% url 'start_match' %}", {
+          method: "POST",
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({ 
+              match_id: selectedMatchId,
+              court_id: courtId || null  // send null if empty
+          })
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.success) {
+              location.reload();
+          } else {
+              alert("❌ Error: " + data.error);
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          alert("❌ Unexpected error occurred.");
+      });
+
+      // Hide the modal
+      const modalEl = document.getElementById('courtModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+  });
 
   document.getElementById('scoreForm').addEventListener('submit', function(event) {
     event.preventDefault();

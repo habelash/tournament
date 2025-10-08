@@ -64,7 +64,7 @@
                   <div class="match-box bg-white border border-gray-300 shadow-sm rounded-xl p-4 text-sm w-full max-w-xs" id="league-match-{{ match.id }}">
                     <div class="font-semibold text-gray-800 text-center">
                       {% if match.team1 %}
-                        {{ match.team1.player_name }}{% if match.team1.partner_name %} & {{ match.team1.partner_name }}{% endif %}
+                        {{ match.team1.player_name }}{% if match.team1.partner_name %} & {{ match.team1.partner_name }} {% endif %}
                       {% else %} TBD {% endif %}
                     </div>
                     <div class="text-center text-gray-400 font-bold my-1">vs</div>
@@ -84,10 +84,15 @@
                       <!-- Winner / Match Status: Always rendered -->
                       <div class="mt-2 text-xs text-center font-medium winner {% if match.is_completed %}text-green-600{% elif match.is_started %}text-yellow-500{% else %}text-gray-500{% endif %}">
                         {% if match.is_completed %}
+                          Court: {{ m.court|default:"Not Assigned" }}
+                               <!-- Court Info -->
+                        <div class="text-center bg-blue-100 text-blue-800 font-medium px-4 py-2 rounded-lg shadow-inner">
                           Winner:
                           {% if match.winner %}
-                            {{ match.winner.player_name }}{% if match.winner.partner_name %} & {{ match.winner.partner_name }}{% endif %}
-                          {% else %}
+                            {{ match.winner.player_name }}{% if match.winner.partner_name %} & {{ match.winner.partner_name }}{% endif %}<br>
+                        </div>
+                          
+                            {% else %}
                             Decided
                           {% endif %}
                         {% elif match.is_started %}
@@ -139,17 +144,32 @@
                       </div>   
                       <div class="mt-2 text-xs text-center font-medium text-green-600 winner">
                       {% if m.is_completed %}
+                          Court: {{ m.court|default:"Not Assigned" }}
+                               <!-- Court Info -->
+                        <div class="text-center bg-blue-100 text-blue-800 font-medium px-4 py-2 rounded-lg shadow-inner">
                           Winner: 
                           {% if m.winner %}
-                            {{ m.winner.player_name }}{% if m.winner.partner_name %} & {{ m.winner.partner_name }}{% endif %}
+                            {{ m.winner.player_name }}{% if m.winner.partner_name %} & {{ m.winner.partner_name }}{% endif %}<br>
+                        </div>
                           {% else %}
                             Decided
                           {% endif %}
 
                       {% elif m.is_started %}
-                        <div class="mt-2 text-xs text-center font-medium text-yellow-500">
-                          Match Started
+                      <div class="mt-4 max-w-sm mx-auto p-4 bg-yellow-50 border-l-4 border-yellow-400 shadow-md rounded-lg">
+                        <!-- Match Started Badge -->
+                        <div class="text-center mb-2">
+                          <span class="inline-block bg-yellow-200 text-yellow-800 font-semibold text-sm px-3 py-1 rounded-full animate-pulse">
+                            Match Started
+                          </span>
                         </div>
+
+                        <!-- Court Info -->
+                        <div class="text-center bg-blue-100 text-red-800 font-medium px-4 py-2 rounded-lg shadow-inner">
+                          Court: {{ m.court|default:"Not Assigned" }}
+                        </div>
+                      </div>
+
                       {% else %}
                         <div class="mt-2 text-xs text-center font-medium text-gray-500">
                           Pending
