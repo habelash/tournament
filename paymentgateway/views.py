@@ -6,7 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 import uuid
-from organiser.models import TournamentCategory
+from organiser.models import TournamentCategory, Category
 from phonepe.sdk.pg.env import Env
 from phonepe.sdk.pg.payments.v2.standard_checkout_client import StandardCheckoutClient
 from phonepe.sdk.pg.payments.v2.models.request.standard_checkout_pay_request import StandardCheckoutPayRequest
@@ -54,13 +54,13 @@ def get_amount_by_category(tournament_id, category_name):
     Returns:
         Decimal: entry fee
     """
-    print(category_name)
     try:
+        category_obj = Category.objects.get(name=category_name)
         tc = TournamentCategory.objects.get(
             tournament_id=tournament_id,
-            category__name__iexact=category_name
+            category=category_obj
         )
-        return tc.entry_fee
+        return float(tc.entry_fee)
     except TournamentCategory.DoesNotExist:
         return 0  # or raise an exception if preferred
 
@@ -131,7 +131,8 @@ def phonepe_callback(request):
         print(status_resp)
         if status_resp and status_resp.state in ['SUCCESS', 'COMPLETED']:
             registration = TournamentRegistration.objects.get(phonepay_order_id=merchant_transaction_id)
-            amount_paid = get_amount_by_category(registration.category)
+            tournament_id = registration.tournament.id
+            amount_paid = get_amount_by_category(tournament_id,registration.category)
 
             # First try top-level amount
             if status_resp.amount:
