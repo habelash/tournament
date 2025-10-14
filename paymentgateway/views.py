@@ -109,7 +109,7 @@ def initiate_phonepe_payment(request, registration_id):
     error_msg = getattr(response, 'state', 'UNKNOWN')
     return render(request, 'payment_failure.html', {'error': error_msg})
 
-@csrf_exempt
+
 def phonepe_callback(request):
     
     merchant_transaction_id = request.POST.get("merchantTransactionId") or request.GET.get("merchantTransactionId")
