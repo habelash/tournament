@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('', include(('players.urls','players'), namespace='players')),
     path('', include('organiser.urls')),
     path('', include('referee.urls')),
+    path('', include('users.urls')),
+    path('accounts/', include('allauth.urls')),  # <-- Allauth routes
 ]
 
 

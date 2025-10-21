@@ -64,7 +64,6 @@ def contact_us(request):
 def tournament(request):
     active_tournaments = Tournament.objects.filter(is_active=True)
     past_tournaments = Tournament.objects.filter(is_active=False)
-    print(past_tournaments)
 
     return render(request, "tournament.html", {
         "active_tournaments": active_tournaments,

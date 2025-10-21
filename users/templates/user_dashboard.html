@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Dashboard</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: #f4f6fa;
+      font-family: "Poppins", sans-serif;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #0d47a1, #1976d2);
+    }
+    .navbar-brand, .nav-link {
+      color: white !important;
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .card h5 {
+      font-weight: 600;
+    }
+    .card-stat {
+      text-align: center;
+      padding: 20px;
+    }
+    .card-stat i {
+      font-size: 2rem;
+      color: #1976d2;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-weight: 600;
+      color: #0d47a1;
+    }
+    .table thead {
+      background-color: #1976d2;
+      color: white;
+    }
+    .action-btn {
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+    .action-btn:hover {
+      background: #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">🏸 Tournament Dashboard</a>
+      <div>
+        <a href="#" class="btn btn-outline-light btn-sm me-2">Profile</a>
+        <a href="#" class="btn btn-light btn-sm">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4 mb-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold">Welcome, Abhilash</h2>
+      <button class="action-btn"><i class="bi bi-plus-circle me-2"></i>Register New Player</button>
+    </div>
+
+    <!-- Tournament Summary Cards -->
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card card-stat">
+          <i class="bi bi-trophy"></i>
+          <h5 class="mt-2">Total Tournaments</h5>
+          <h3>3</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-stat">
+          <i class="bi bi-people"></i>
+          <h5 class="mt-2">Players Registered</h5>
+          <h3>124</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-stat">
+          <i class="bi bi-activity"></i>
+          <h5 class="mt-2">Matches Ongoing</h5>
+          <h3>4</h3>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-stat">
+          <i class="bi bi-check-circle"></i>
+          <h5 class="mt-2">Matches Completed</h5>
+          <h3>28</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Matches -->
+    <h4 class="section-title mt-5">Upcoming Matches</h4>
+    <div class="card mt-3 p-3">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Match</th>
+            <th>Category</th>
+            <th>Players</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Q1</td>
+            <td>Men’s Doubles</td>
+            <td>Abhilash / Prashanth vs Prakash / Madhusudhan</td>
+            <td>3:00 PM</td>
+            <td><span class="badge bg-warning text-dark">Upcoming</span></td>
+          </tr>
+          <tr>
+            <td>S1</td>
+            <td>Mixed Doubles</td>
+            <td>Nithin / Harshitha vs Naveen / Nidhi</td>
+            <td>4:00 PM</td>
+            <td><span class="badge bg-warning text-dark">Upcoming</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- League Standings -->
+    <h4 class="section-title mt-5">League Standings</h4>
+    <div class="card mt-3 p-3">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Group</th>
+            <th>Team</th>
+            <th>Played</th>
+            <th>Won</th>
+            <th>Lost</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A</td>
+            <td>A1</td>
+            <td>3</td>
+            <td>3</td>
+            <td>0</td>
+            <td><strong>6</strong></td>
+          </tr>
+          <tr>
+            <td>A</td>
+            <td>A2</td>
+            <td>3</td>
+            <td>2</td>
+            <td>1</td>
+            <td><strong>4</strong></td>
+          </tr>
+          <tr>
+            <td>B</td>
+            <td>B1</td>
+            <td>3</td>
+            <td>2</td>
+            <td>1</td>
+            <td><strong>4</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent Results -->
+    <h4 class="section-title mt-5">Recent Results</h4>
+    <div class="card mt-3 p-3">
+      <table class="table table-borderless align-middle">
+        <tbody>
+          <tr>
+            <td><strong>Men’s Doubles Final:</strong> Abhilash / Prashanth defeated Prakash / Madhusudhan (21-17, 21-19)</td>
+            <td><span class="badge bg-success">Completed</span></td>
+          </tr>
+          <tr>
+            <td><strong>Mixed Doubles Semifinal:</strong> Nithin / Harshitha defeated Naveen / Nidhi (21-10, 21-12)</td>
+            <td><span class="badge bg-success">Completed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="text-center py-3 mt-5 text-muted">
+    © 2025 Five Percent Club | Tournament Management System
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

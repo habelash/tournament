@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% load widget_tweaks %}
+{% block title %}Login | FivePercentClub{% endblock %}
+
+{% block content %}
+<div class="login-page d-flex justify-content-center align-items-center vh-100">
+
+  <div class="login-card card shadow p-4 p-md-5">
+    
+    <!-- Logo -->
+    <div class="tournament-logo text-center mb-3">
+      <img src="{% static 'images/fivepercent.png' %}" alt="Tournament Logo" class="rounded-circle" height="70" style="background-color: black;">
+    </div>
+
+    <!-- Title -->
+    <h3 class="login-title text-center mb-2">Welcome Back 🏸</h3>
+    <p class="text-center text-muted mb-4">Sign in to continue to <strong>FivePercentClub</strong></p>
+
+    <!-- Form -->
+    <form method="post" action="{% url 'account_login' %}">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        {{ form.login.label_tag }}
+        {{ form.login|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+      <div class="mb-3">
+        {{ form.password.label_tag }}
+        {{ form.password|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.remember }}
+        <label class="form-check-label" for="id_remember">Remember me</label>
+      </div>
+
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-primary py-2 rounded-pill fw-bold shadow-sm">Sign In</button>
+      </div>
+    </form>
+
+    <!-- Links -->
+    <div class="text-center mt-2">
+      <p class="small mb-1">Don't have an account? <a href="{% url 'account_signup' %}">Sign Up</a></p>
+      <p class="small"><a href="{% url 'account_reset_password' %}">Forgot your password?</a></p>
+    </div>
+
+    <hr class="my-3">
+
+    <!-- Google Sign-In -->
+    <div class="d-grid">
+      <a href="{% provider_login_url 'google' %}" class="btn btn-danger py-2 rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-google me-2"></i> Continue with Google
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Scoped login page styles */
+.login-page {
+  background: linear-gradient(135deg, #001f3f, #003366);
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
+
+.login-page .login-card {
+  background: #fff;
+  color: #333;
+  border-radius: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-page .login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.login-page .login-title {
+  color: #003366;
+  font-weight: 700;
+}
+
+.login-page a {
+  color: #003366;
+  font-weight: 500;
+}
+
+.login-page a:hover {
+  text-decoration: underline;
+}
+
+.login-page .btn-primary {
+  background-color: #003366;
+  border: none;
+}
+
+.login-page .btn-primary:hover {
+  background-color: #00264d;
+}
+
+.login-page .btn-danger {
+  background-color: #db4437;
+  border: none;
+}
+
+.login-page .btn-danger:hover {
+  background-color: #c33d31;
+}
+
+.login-page input.form-control {
+  padding: 0.75rem 1.25rem;
+}
+
+.login-page hr {
+  border-top: 1px solid #ccc;
+}
+</style>
+{% endblock %}

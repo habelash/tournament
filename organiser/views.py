@@ -151,8 +151,6 @@ def generate_mirrored_knockout_pairs(league_keys):
 
     return pairs
 
-
-
 def create_knockout_matches_from_pairs(tournament, category, pairs, game_number):
     created = 0
     skipped = 0
@@ -606,7 +604,7 @@ def start_tournament_category(request, tournament_id):
 def tournament(request):
     tournaments = Tournament.objects.all()
     context = {'tournaments': tournaments}
-    return render (request, 'tournament.html',context)
+    return render (request, 'organiser.html',context)
 
 
 def profile(request):
