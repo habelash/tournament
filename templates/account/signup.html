@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% load widget_tweaks %}
+
+{% block title %}Sign Up | FivePercentClub{% endblock %}
+
+{% block content %}
+<div class="signup-page d-flex justify-content-center align-items-center vh-100">
+
+  <div class="signup-card card shadow p-4 p-md-5">
+
+    <!-- Logo -->
+    <div class="tournament-logo text-center mb-3">
+      <img src="{% static 'images/fivepercent.png' %}" alt="Tournament Logo" class="rounded-circle" height="70" style="background-color: black;">
+    </div>
+
+    <!-- Title -->
+    <h3 class="signup-title text-center mb-2">Join FivePercentClub 🏸</h3>
+    <p class="text-center text-muted mb-4">Create your account to start competing!</p>
+
+    <!-- Signup Form -->
+    <form method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.email.label_tag }}
+        {{ form.email|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password1.label_tag }}
+        {{ form.password1|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password2.label_tag }}
+        {{ form.password2|add_class:"form-control rounded-pill shadow-sm" }}
+      </div>
+
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-primary py-2 rounded-pill fw-bold shadow-sm">Sign Up</button>
+      </div>
+    </form>
+
+    <!-- Links -->
+    <div class="text-center mt-2">
+      <p class="small mb-1">Already have an account? <a href="{% url 'account_login' %}">Sign In</a></p>
+    </div>
+
+    <hr class="my-3">
+
+    <!-- Google Sign-In -->
+    <div class="d-grid">
+      <a href="{% provider_login_url 'google' %}" class="btn btn-danger py-2 rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-google me-2"></i> Continue with Google
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* Scoped signup page styles */
+.signup-page {
+  background: linear-gradient(135deg, #001f3f, #003366);
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
+
+.signup-page .signup-card {
+  background: #fff;
+  color: #333;
+  border-radius: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-page .signup-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.signup-page .signup-title {
+  color: #003366;
+  font-weight: 700;
+}
+
+.signup-page a {
+  color: #003366;
+  font-weight: 500;
+}
+
+.signup-page a:hover {
+  text-decoration: underline;
+}
+
+.signup-page .btn-primary {
+  background-color: #003366;
+  border: none;
+}
+
+.signup-page .btn-primary:hover {
+  background-color: #00264d;
+}
+
+.signup-page .btn-danger {
+  background-color: #db4437;
+  border: none;
+}
+
+.signup-page .btn-danger:hover {
+  background-color: #c33d31;
+}
+
+.signup-page input.form-control {
+  padding: 0.75rem 1.25rem;
+}
+
+.signup-page hr {
+  border-top: 1px solid #ccc;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% load bracket_filters %}
+
+{% block content %}
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ player.full_name }} — Profile</title>
+
+  <!-- Tailwind Play CDN for quick prototyping -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Alpine.js for small interactivity -->
+  <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+
+  <!-- Motion One (tiny powerful animation library) -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js"></script>
+
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Subtle global tweaks */
+    :root{
+      --brand-dark:#0d47a1;
+      --brand-mid:#1976d2;
+      --accent:#fbc02d;
+    }
+    body { background: linear-gradient(180deg,#f3f6fb,#eef3fb); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .glass { background: rgba(255,255,255,0.86); backdrop-filter: blur(6px); }
+    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 18px 30px rgba(16,24,40,0.08); }
+    /* small screens: compact cards */
+    @media (max-width:768px) {
+      .left-nav { display:flex; gap:.6rem; overflow:auto; padding:0.5rem 0.5rem; }
+    }
+  </style>
+</head>
+
+<body x-data="{sidebarOpen:false}" class="antialiased text-slate-800">
+
+  <div class="min-h-screen flex">
+
+    <!-- LEFT NAV -->
+    <aside class="hidden md:flex md:flex-col w-72 p-5 gap-6 border-r border-slate-200 glass">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[color:var(--brand-mid)] to-[color:var(--brand-dark)] flex items-center justify-center text-white shadow">
+          <i class="bi bi-badge-3-fill"></i>
+        </div>
+        <div>
+          <div class="text-lg font-semibold">Badminton Tournaments</div>
+          <div class="text-xs text-slate-500">Player profiles</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex flex-col gap-1 text-sm">
+        <a href="" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 card-hover">
+          <i class="bi bi-house-door text-[18px] text-slate-600"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 card-hover">
+          <i class="bi bi-controller text-[18px] text-slate-600"></i>
+          <span>All games</span>
+        </a>
+        <a href="" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 card-hover">
+          <i class="bi bi-lightning-charge text-[18px] text-slate-600"></i>
+          <span>Live Games</span>
+        </a>
+        <a href="" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 card-hover">
+          <i class="bi bi-trophy text-[18px] text-slate-600"></i>
+          <span>Rankings</span>
+        </a>
+        <a href="" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 card-hover">
+          <i class="bi bi-bar-chart-line text-[18px] text-slate-600"></i>
+          <span>Statistics</span>
+        </a>
+      </nav>
+
+      <!-- Cloud CTA -->
+      <div class="mt-auto">
+        <div class="rounded-xl p-4 bg-gradient-to-br from-[#e9f5ff] to-white border border-slate-100">
+          <div class="text-sm font-semibold text-slate-800">Upgrade to PRO</div>
+          <div class="text-xs text-slate-500 mt-1">More analytics & insights</div>
+          <a href="" class="inline-block mt-3 px-3 py-2 bg-[color:var(--brand-mid)] text-white rounded-lg text-sm">Upgrade</a>
+        </div>
+
+        <div class="flex items-center justify-between mt-4 text-xs text-slate-500">
+          <a href="" class="flex items-center gap-2 hover:text-slate-700">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500">Light</span>
+            <!-- Light/Dark toggle placeholder - implement JS later -->
+            <button class="w-8 h-8 rounded-full grid place-items-center bg-white border shadow-sm">
+              <i class="bi bi-sun text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-6">
+      <!-- Top bar -->
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <!-- small screen menu button -->
+          <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 rounded-lg bg-white shadow">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <div class="relative w-full max-w-xl">
+            <input type="search" placeholder="Search players, tournaments..." class="w-full pl-10 pr-4 py-2 rounded-full shadow-sm border focus:outline-none" />
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i class="bi bi-search"></i></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button class="p-2 rounded-lg bg-white shadow">
+            <i class="bi bi-bell"></i>
+          </button>
+
+          <div class="flex items-center gap-3">
+            {% if request.user.is_authenticated and request.user.profile.photo %}
+                <img src="{{ request.user.profile.photo.url }}" alt="Profile Photo">
+            {% else %}
+                <img src="{% static 'img/default-avatar.png' %}" alt="Default Avatar">
+            {% endif %}            
+            <div class="hidden md:block text-sm text-slate-600">{{ request.user.get_full_name|default:"Guest" }}</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Grid layout: left large content + right profile card -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        <!-- LEFT / MAIN (charts, upcoming, rankings) -->
+        <section class="xl:col-span-2 space-y-6">
+
+          <!-- Upcoming match card -->
+          <div class="glass rounded-2xl p-5 flex items-center justify-between card-hover" id="upcomingCard">
+            <div class="flex items-center gap-4">
+              <div class="rounded-lg p-3 bg-gradient-to-br from-[color:var(--brand-mid)] to-[color:var(--brand-dark)] text-white">
+                <i class="bi bi-clock-history text-2xl"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-500">Your Upcoming Match</div>
+                {% if upcoming_match %}
+                  <div class="flex items-center gap-3 mt-1">
+                    <div class="text-lg font-semibold">{{ upcoming_match.title }}</div>
+                    <div class="text-sm text-slate-500">• {{ upcoming_match.date|date:"j M Y, H:i" }}</div>
+                  </div>
+                  <div class="mt-2 text-sm text-slate-600">
+                    {{ upcoming_match.player_a }} <span class="mx-3 text-slate-300">vs</span> {{ upcoming_match.player_b }}
+                  </div>
+                {% else %}
+                  <div class="text-sm text-slate-600">No upcoming match scheduled.</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="text-right">
+              {% if upcoming_match %}
+                <a href="" class="inline-block px-4 py-2 bg-[color:var(--brand-mid)] text-white rounded-lg shadow hover:scale-105">View Match</a>
+              {% else %}
+                <a href="" class="inline-block px-4 py-2 bg-white border rounded-lg shadow">Browse Tournaments</a>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Rankings summary (3 cards) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% comment %} Ranking card loop {% endcomment %}
+            <div class="p-4 rounded-2xl glass card-hover" x-init="motion.animate('#rankSingle',{ transform: ['translateY(16px)','translateY(0)'], opacity: [0,1]}, {delay: 0.05})">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Singles</div>
+                  <div class="text-2xl font-semibold text-[color:var(--brand-dark)]">{{ rankings.singles.rank }}</div>
+                  <div class="text-xs text-slate-400 mt-1">Points: {{ rankings.singles.points }}</div>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="px-3 py-1 rounded-full bg-gradient-to-r from-orange-300 to-yellow-300 text-xs font-semibold">#{{ rankings.singles.position }}</div>
+                  <div class="text-xs text-slate-400 mt-2">Change: <span class="font-medium">{{ rankings.singles.delta|default:"0" }}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl glass card-hover">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Doubles</div>
+                  <div class="text-2xl font-semibold text-[color:var(--brand-dark)]">{{ rankings.doubles.rank }}</div>
+                  <div class="text-xs text-slate-400 mt-1">Points: {{ rankings.doubles.points }}</div>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="px-3 py-1 rounded-full bg-gradient-to-r from-pink-300 to-rose-300 text-xs font-semibold">#{{ rankings.doubles.position }}</div>
+                  <div class="text-xs text-slate-400 mt-2">Change: <span class="font-medium">{{ rankings.doubles.delta|default:"0" }}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl glass card-hover">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="text-xs text-slate-500">Mixed</div>
+                  <div class="text-2xl font-semibold text-[color:var(--brand-dark)]">{{ rankings.mixed.rank }}</div>
+                  <div class="text-xs text-slate-400 mt-1">Points: {{ rankings.mixed.points }}</div>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="px-3 py-1 rounded-full bg-gradient-to-r from-green-300 to-emerald-300 text-xs font-semibold">#{{ rankings.mixed.position }}</div>
+                  <div class="text-xs text-slate-400 mt-2">Change: <span class="font-medium">{{ rankings.mixed.delta|default:"0" }}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts area -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- donut -->
+            <div class="glass rounded-2xl p-4 card-hover">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-semibold">Global Stats</div>
+                <div class="text-xs text-slate-400">Win distribution</div>
+              </div>
+              <canvas id="donutWins" height="180"></canvas>
+              <div class="mt-3 flex gap-3 text-sm text-slate-600">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-amber-400 block"></span>Singles</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-pink-400 block"></span>Doubles</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-emerald-400 block"></span>Mixed</div>
+              </div>
+            </div>
+
+            <!-- month bar -->
+            <div class="glass rounded-2xl p-4 card-hover lg:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-semibold">Monthwise Performance</div>
+                <div class="text-xs text-slate-400">Matches by month</div>
+              </div>
+              <canvas id="barMonths" height="220"></canvas>
+            </div>
+          </div>
+
+          <!-- Recent matches list -->
+          <div class="glass rounded-2xl p-4 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-semibold">Recent Matches</div>
+              <div class="text-xs text-slate-400">Latest results</div>
+            </div>
+
+            <div class="divide-y">
+              {% for m in recent_matches %}
+                <div class="py-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-md overflow-hidden bg-slate-100 flex items-center justify-center">
+                      {% comment %} <img src="{{ m.opponent_avatar_url|default:default_avatar }}" alt="Avatar"> {% endcomment %}
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium">{{ m.title }}</div>
+                      <div class="text-xs text-slate-400">{{ m.date|date:"j M Y" }} • {{ m.tournament }}</div>
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    <div class="text-sm font-semibold {% if m.result == 'W' %}text-green-600{% else %}text-rose-600{% endif %}">
+                      {% if m.result == 'W' %}Won{% elif m.result == 'L' %}Lost{% else %}—{% endif %}
+                    </div>
+                    <div class="text-xs text-slate-400">{{ m.score }}</div>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="py-6 text-center text-slate-500">No recent matches</div>
+              {% endfor %}
+            </div>
+          </div>
+
+        </section>
+
+        <!-- RIGHT / PLAYER PROFILE -->
+        <aside class="space-y-6">
+          <div class="glass rounded-2xl p-5 w-full card-hover" id="profileCard">
+            <div class="flex items-center gap-4">
+              {% if player.photo %}
+                  <img src="{{ player.photo.url }}" alt="Player Photo">
+              {% else %}
+                  <img src="{% static 'img/default-avatar.png' %}" alt="Default Avatar">
+              {% endif %}
+              <div>
+                <div class="text-lg font-semibold">{{ player.full_name }}</div>
+                <div class="text-xs text-slate-500">{{ player.country }} • {{ player.club }}</div>
+                <div class="mt-2 flex items-center gap-2">
+                  <div class="px-2 py-1 bg-[#f3f6ff] rounded-md text-[13px] text-[color:var(--brand-dark)] font-semibold">Rank #{{ player.rank }}</div>
+                  <div class="text-xs text-slate-400">Age {{ player.age }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 text-sm text-slate-600">
+              {{ player.bio|default:"No bio available." }}
+            </div>
+
+            <div class="mt-4 flex gap-3">
+              {% for s in player.social_links %}
+                <a href="{{ s.url }}" target="_blank" class="w-9 h-9 rounded-md grid place-items-center bg-white shadow">
+                  <i class="bi bi-{{ s.icon }}"></i>
+                </a>
+              {% empty %}
+                <div class="text-xs text-slate-400">No social links</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- mini stats -->
+          <div class="glass rounded-2xl p-4 card-hover">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs text-slate-400">Win Rate</div>
+                <div class="text-lg font-semibold">{{ stats.win_rate }}%</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Total</div>
+                <div class="text-lg font-semibold">{{ stats.total_matches }}</div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500" style="width:{{ stats.win_rate }}%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="glass rounded-2xl p-4 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-semibold">Achievements</div>
+              <div class="text-xs text-slate-400">Badges</div>
+            </div>
+
+            <div class="flex gap-3 flex-wrap">
+              {% for a in achievements %}
+                <div class="w-20 h-20 rounded-xl bg-white p-3 text-center shadow">
+                  <div class="text-2xl mb-1">{{ a.icon_html|safe }}</div>
+                  <div class="text-xs text-slate-600">{{ a.title }}</div>
+                </div>
+              {% empty %}
+                <div class="text-xs text-slate-400">No achievements yet</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Upcoming tournaments to join -->
+          <div class="glass rounded-2xl p-4 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-sm font-semibold">Open Tournaments</div>
+              <div class="text-xs text-slate-400">Join now</div>
+            </div>
+
+            <ul class="space-y-2">
+              {% for t in open_tournaments %}
+                <li class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm font-medium">{{ t.title }}</div>
+                    <div class="text-xs text-slate-400">{{ t.start_date|date:"j M" }}</div>
+                  </div>
+                  <a href="" class="text-xs px-3 py-1 rounded-full bg-[color:var(--brand-mid)] text-white">Register</a>
+                </li>
+              {% empty %}
+                <li class="text-xs text-slate-400">No open tournaments</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </aside>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Icons (Bootstrap icons) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- Chart.js rendering + Motion One entrance -->
+  <script>
+    // Motion entrance
+    (function () {
+      // animate a few elements for a pleasant entrance
+      import('https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js').then(({ animate }) => {
+        animate('#upcomingCard', { opacity: [0,1], transform: ['translateY(10px)','translateY(0)'] }, { delay: 0.05, duration: 0.6 });
+        animate('#profileCard', { opacity: [0,1], transform: ['translateY(10px)','translateY(0)'] }, { delay: 0.12, duration: 0.6 });
+      }).catch(()=>{ /* ignore if import fails (older browsers) */});
+    })();
+
+    // Chart data coming from template context (make sure to pass JSON-serializable structures)
+    const donutData = {
+      labels: ['Singles','Doubles','Mixed'],
+      datasets: [{
+        data: [{% if stats.singles %}{{ stats.singles }}{% else %}0{% endif %},{% if stats.doubles %}{{ stats.doubles }}{% else %}0{% endif %},{% if stats.mixed %}{{ stats.mixed }}{% else %}0{% endif %}],
+        backgroundColor: ['#f59e0b','#ec4899','#10b981'],
+        hoverOffset: 8
+      }]
+    };
+    const donutCfg = { type: 'doughnut', data: donutData, options:{plugins:{legend:{display:false}},cutout:'65%'} };
+    new Chart(document.getElementById('donutWins'), donutCfg);
+
+    // Bar chart (monthwise). Pass months array and values via template context
+    const months = {{ stats.months|default:"[]"|safe }};
+    const monthValues = {{ stats.month_values|default:"[]"|safe }};
+
+    const barCfg = {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [{
+          label: 'Matches',
+          data: monthValues,
+          backgroundColor: 'rgba(25,118,210,0.85)',
+          borderRadius: 6,
+          barThickness: 12
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+        }
+      }
+    };
+    new Chart(document.getElementById('barMonths'), barCfg);
+  </script>
+</body>
+</html>
+{% endblock %}
