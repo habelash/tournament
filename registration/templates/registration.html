@@ -173,11 +173,25 @@
 </head>
 <body>
 
-{% if tournament.poster %}
-    <div class="text-center mb-4">
-        <img src="{{ tournament.poster.url }}" alt="Tournament Poster" class="w-full max-w-md mx-auto rounded shadow">
+  <!-- Poster Section -->
+  {% if tournament.poster %}
+    <div class="w-full flex justify-center mb-6 px-4">
+      <img 
+        src="{{ tournament.poster.url }}" 
+        alt="Tournament Poster"
+        class="rounded-2xl shadow-lg object-contain"
+        style="
+          display: block;
+          max-width: 100%;
+          height: auto;
+          width: 100%;
+          max-width: 800px;
+          margin: 0 auto;
+        "
+      >
     </div>
-{% endif %}
+  {% endif %}
+
 <!-- Form Section -->
 <div class="container form-container">
   <div class="form-card">
