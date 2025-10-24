@@ -262,6 +262,11 @@
           {% for tournament in past_tournaments %}
           <div class="col-md-6 col-lg-4 tournament-card" data-name="{{ tournament.name|lower }}" data-aos="zoom-in">
             <div class="card card-brand">
+            {% if tournament.banner %}
+              <img src="{{ tournament.banner.url }}" alt="{{ tournament.name }} Banner" class="card-img-top rounded-top" style="height:150px; object-fit:cover;">
+            {% elif tournament.poster %}
+              <img src="{{ tournament.poster.url }}" alt="{{ tournament.name }} Poster" class="card-img-top rounded-top" style="height:150px; object-fit:cover;">
+            {% endif %}
               <div class="card-body d-flex flex-column justify-content-between">
                 <div>
                   <h5 class="card-title">{{ tournament.name }}</h5>
