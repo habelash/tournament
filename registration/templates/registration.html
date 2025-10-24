@@ -173,7 +173,11 @@
 </head>
 <body>
 
-
+{% if tournament.poster %}
+    <div class="text-center mb-4">
+        <img src="{{ tournament.poster.url }}" alt="Tournament Poster" class="w-full max-w-md mx-auto rounded shadow">
+    </div>
+{% endif %}
 <!-- Form Section -->
 <div class="container form-container">
   <div class="form-card">

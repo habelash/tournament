@@ -601,11 +601,5 @@ def start_tournament_category(request, tournament_id):
     return render(request, "start_tournament.html", context)
 
 
-def tournament(request):
-    tournaments = Tournament.objects.all()
-    context = {'tournaments': tournaments}
-    return render (request, 'organiser.html',context)
-
-
 def profile(request):
     return render(request,"profile.html")

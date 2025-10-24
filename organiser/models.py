@@ -1,11 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils.text import slugify
 
 
 # Create your models here.
 class Expense(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.CharField(max_length=50)
@@ -33,6 +33,10 @@ class Tournament(models.Model):
         related_name="tournaments"
     )
 
+    # New fields for images
+    banner = models.ImageField(upload_to='tournament_banners/', blank=True, null=True)
+    poster = models.ImageField(upload_to='tournament_posters/', blank=True, null=True)
+    
     def __str__(self):
         return self.name
 
